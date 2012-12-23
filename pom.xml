@@ -6,6 +6,15 @@
     <packaging>war</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>Planning Poker web application</name>
+    <organization>
+      <name>Leonid Bogdanov</name>
+    </organization>
+    <licenses>
+      <license>
+        <name>The Apache Software License, Version 2.0</name>
+        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      </license>
+    </licenses>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <wicket.version>6.4.0</wicket.version>
