@@ -15,6 +15,7 @@
  */
 package org.lbogdanov.poker.core;
 
+import java.util.Random;
 
 /**
  * Represents a Planning Poker session.
@@ -23,14 +24,28 @@ package org.lbogdanov.poker.core;
  */
 public class Session {
 
-    /**
-     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
-     * 
-     * @param length the desired code length
-     * @return the new code
-     */
-    public static String newCode(int length) {
-        return "1q2w3e4r5t6y";
-    }
+	/**
+	 * Generates a new alphanumeric code of a specified length which can be used
+	 * to uniquely identify a session.
+	 * 
+	 * @param length
+	 *            the desired code length
+	 * @return the new code
+	 */
+	public static String newCode(int length) {
+		StringBuilder code = new StringBuilder();
+		Random random = new Random();
+		for (int i = 0; i < length; i++) {
+			char letter = (char) (65 + random.nextInt(26));
+			letter = (random.nextBoolean()) ? letter : (char) (letter + 32);
+
+			if (random.nextBoolean()) {
+				code.append(letter);
+			} else {
+				code.append(random.nextInt(10));
+			}
+		}
+		return code.toString();
+	}
 
 }
