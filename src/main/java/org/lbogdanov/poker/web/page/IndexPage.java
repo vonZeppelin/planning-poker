@@ -24,7 +24,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -122,8 +121,15 @@ public class IndexPage extends AbstractPage {
             }
 
         };
-        create.add(new RequiredTextField<String>("name"), new TextArea<String>("description"),
-                   new Label("code", Session.newCode(0))); // TODO Read from settings
+        TextField<String> code = new TextField<String>("code", new AbstractReadOnlyModel<String>() {
+
+            @Override
+            public String getObject() {
+                return Session.newCode(7); // TODO Read from settings
+            }
+
+        });
+        create.add(new RequiredTextField<String>("name"), new TextArea<String>("description"), code.setEnabled(false));
 
         login.add(internal);
         session.add(join, create);

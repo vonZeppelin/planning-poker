@@ -24,28 +24,24 @@ import java.util.Random;
  */
 public class Session {
 
-	/**
-	 * Generates a new alphanumeric code of a specified length which can be used
-	 * to uniquely identify a session.
-	 * 
-	 * @param length
-	 *            the desired code length
-	 * @return the new code
-	 */
-	public static String newCode(int length) {
-		StringBuilder code = new StringBuilder();
-		Random random = new Random();
-		for (int i = 0; i < length; i++) {
-			char letter = (char) (65 + random.nextInt(26));
-			letter = (random.nextBoolean()) ? letter : (char) (letter + 32);
-
-			if (random.nextBoolean()) {
-				code.append(letter);
-			} else {
-				code.append(random.nextInt(10));
-			}
-		}
-		return code.toString();
-	}
+    /**
+     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
+     * 
+     * @param length the desired code length
+     * @return the new code
+     */
+    public static String newCode(int length) {
+        StringBuilder code = new StringBuilder(length);
+        Random rnd = new Random();
+        while (code.length() < length) {
+            if (rnd.nextBoolean()) { // append new letter or digit?
+                char letter = (char) ('a' + rnd.nextInt(26));
+                code.append(rnd.nextBoolean() ? Character.toUpperCase(letter) : letter);
+            } else {
+                code.append(rnd.nextInt(10));
+            }
+        }
+        return code.toString();
+    }
 
 }
