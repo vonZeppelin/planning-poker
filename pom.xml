@@ -17,6 +17,7 @@
     </licenses>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shiro.version>1.2.1</shiro.version>
         <wicket.version>6.4.0</wicket.version>
     </properties>
     <dependencies>
@@ -34,6 +35,23 @@
             <groupId>org.odlabs.wiquery</groupId>
             <artifactId>wiquery-core</artifactId>
             <version>6.2.0</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.shiro</groupId>
+          <artifactId>shiro-core</artifactId>
+          <version>${shiro.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.shiro</groupId>
+          <artifactId>shiro-web</artifactId>
+          <version>${shiro.version}</version>
+          <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -1,0 +1,88 @@
+<wicket:extend>
+  <br>
+  <div class="hero-unit">
+    <div class="row">
+      <div class="span3">
+        <wicket:link><img src="images/logo.png" width="200" height="200" /></wicket:link>
+      </div>
+      <div class="span7">
+        <h1>Planning Poker</h1>
+        <em>Estimate Like Crazy!</em>
+      </div>
+    </div>
+  </div>
+  <blockquote>
+    <p style="text-align: justify;">
+      <strong>Planning Poker</strong>, also called <strong>Scrum poker</strong>, is a consensus-based technique for estimating,
+      mostly used to estimate effort or relative size of user stories in software development.
+      It is a variation of the <strong>Wideband Delphi</strong> method. It is most commonly used in agile software development,
+      in particular the <strong>Extreme Programming</strong> methodology.
+    </p>
+    <small>Wikipedia</small>
+  </blockquote>
+  <div class="row">
+    <div id="crsl" class="carousel slide">
+      <div class="carousel-inner">
+        <div wicket:id="login" class="active item">
+          <h3 class="text-info"><wicket:message key="login.title" /></h3>
+          <div class="span6">
+            <form wicket:id="internal">
+              <fieldset>
+                <legend><wicket:message key="login.internal.hint" /></legend>
+                <label><wicket:message key="login.internal.username" /></label>
+                <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
+                <label><wicket:message key="login.internal.password" /></label>
+                <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
+                <label class="checkbox">
+                  <input type="checkbox" wicket:id="rememberme"><wicket:message key="login.remember" />
+                </label>
+                <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="login.internal.submit" /></button>
+                &nbsp;
+                <button type="reset" class="btn"><wicket:message key="login.internal.reset" /></button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="span6">
+            <form>
+              <fieldset>
+                <legend><wicket:message key="login.oauth.hint" /></legend>
+                <span class="help-block"><wicket:message key="login.oauth.help" /></span>
+                <label class="checkbox">
+                  <input type="checkbox"><wicket:message key="login.remember" />
+                </label>
+                <a href="#" type="submit" class="btn btn-primary disabled"><wicket:message key="login.oauth.go" /></a>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <div wicket:id="session" class="item">
+          <h3 class="text-info"><wicket:message key="session.title" /></h3>
+          <div class="span6">
+            <form wicket:id="join">
+              <fieldset>
+                <legend><wicket:message key="session.join" /></legend>
+                <label><wicket:message key="session.code" /></label>
+                <input type="text" wicket:id="code" wicket:message="placeholder:session.code.hint" required><br />
+                <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.join.hint" /></button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="span6">
+            <form wicket:id="create">
+              <fieldset>
+                <legend><wicket:message key="session.create" /></legend>
+                <label><wicket:message key="session.name" /></label>
+                <input type="text" wicket:id="name" wicket:message="placeholder:session.name.hint" required>
+                <label><wicket:message key="session.description" /></label>
+                <textarea wicket:id="description" rows="4" />
+                <label><wicket:message key="session.code" /></label>
+                <span class="input-xlarge uneditable-input" wicket:id="code"></span><br />
+                <button type="submit" class="btn btn-primary"><wicket:message key="session.create.hint" /></button>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</wicket:extend>

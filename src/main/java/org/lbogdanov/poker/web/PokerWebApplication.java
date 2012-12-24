@@ -17,7 +17,9 @@ package org.lbogdanov.poker.web;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.lbogdanov.poker.web.page.Index;
+import org.lbogdanov.poker.web.page.IndexPage;
+
+import fiftyfive.wicket.shiro.ShiroWicketPlugin;
 
 
 /**
@@ -32,7 +34,16 @@ public class PokerWebApplication extends WebApplication {
      */
     @Override
     public Class<? extends Page> getHomePage() {
-        return Index.class;
+        return IndexPage.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void init() {
+        super.init();
+        new ShiroWicketPlugin().mountLoginPage(null, getHomePage()).install(this);
     }
 
 }
