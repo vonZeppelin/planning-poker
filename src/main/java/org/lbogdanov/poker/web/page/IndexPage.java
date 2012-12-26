@@ -25,12 +25,16 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.io.IClusterable;
 import org.lbogdanov.poker.core.Session;
 import org.odlabs.wiquery.core.javascript.JsQuery;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
 
 /**
@@ -77,8 +81,8 @@ public class IndexPage extends AbstractPage {
         };
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
-        internal.add(new RequiredTextField<String>("username"), new PasswordTextField("password"),
-                     new CheckBox("rememberme"), new AjaxButton("submit") {
+        internal.add(new RequiredTextField<String>("username"), new PasswordTextField("password"), 
+                     new FeedbackPanel("feedback"), new CheckBox("rememberme"), new AjaxButton("submit") {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -97,7 +101,9 @@ public class IndexPage extends AbstractPage {
                     target.appendJavaScript(js);
                     target.add(IndexPage.this.get(NAVBAR_ID));
                 } catch (AuthenticationException ae) {
-                    // TODO Handle errors
+                	form.error("Invalid login or password");
+                    form.add(new AttributeAppender("class", new Model<String>("control-group error")));
+                    redirectToInterceptPage(IndexPage.this);
                 }
             }
 
