@@ -34,6 +34,7 @@ import org.apache.wicket.util.io.IClusterable;
 import org.lbogdanov.poker.core.Session;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
 
 /**
@@ -81,7 +82,7 @@ public class IndexPage extends AbstractPage {
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
         internal.add(new RequiredTextField<String>("username"), new PasswordTextField("password"), 
-                     new Label("loginerror", new Model<String>()), new CheckBox("rememberme"), new AjaxButton("submit") {
+                     new FeedbackPanel("feedback"), new CheckBox("rememberme"), new AjaxButton("submit") {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -100,8 +101,8 @@ public class IndexPage extends AbstractPage {
                     target.appendJavaScript(js);
                     target.add(IndexPage.this.get(NAVBAR_ID));
                 } catch (AuthenticationException ae) {
+                	form.error("Invalid login or password");
                     form.add(new AttributeAppender("class", new Model<String>("control-group error")));
-                    form.replace(new Label("loginerror", new Model<String>("Invalid login or password")));
                     redirectToInterceptPage(IndexPage.this);
                 }
             }
