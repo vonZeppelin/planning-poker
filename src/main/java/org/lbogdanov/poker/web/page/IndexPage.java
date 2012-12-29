@@ -23,11 +23,14 @@ import org.apache.shiro.subject.Subject;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.io.IClusterable;
 import org.lbogdanov.poker.core.Session;
 import org.odlabs.wiquery.core.javascript.JsQuery;
@@ -77,8 +80,10 @@ public class IndexPage extends AbstractPage {
         };
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
-        internal.add(new RequiredTextField<String>("username"), new PasswordTextField("password"),
-                     new CheckBox("rememberme"), new AjaxButton("submit") {
+        WebMarkupContainer controls = new WebMarkupContainer("controls");
+        controls.setOutputMarkupId(true);
+        controls.add(new RequiredTextField<String>("username"), new PasswordTextField("password"), new FeedbackPanel("feedback"));
+        internal.add(controls, new CheckBox("rememberme"), new AjaxButton("submit") {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -97,7 +102,9 @@ public class IndexPage extends AbstractPage {
                     target.appendJavaScript(js);
                     target.add(IndexPage.this.get(NAVBAR_ID));
                 } catch (AuthenticationException ae) {
-                    // TODO Handle errors
+                    form.error(IndexPage.this.getString("login.internal.autherror"));
+                    form.get("controls").add(AttributeModifier.append("class", "error"));
+                    target.add(form.get("controls"));
                 }
             }
 
