@@ -40,8 +40,9 @@ public class NavBar extends Panel {
         WebMarkupContainer userMenu = new WebMarkupContainer("userMenu") {
 
             @Override
-            public boolean isVisible() {
-                return SecurityUtils.getSubject().getPrincipal() != null;
+            protected void onConfigure() {
+                super.onConfigure();
+                setVisible(SecurityUtils.getSubject().getPrincipal() != null);
             }
 
         };

@@ -22,7 +22,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -70,15 +70,16 @@ public class IndexPage extends AbstractPage {
         WebMarkupContainer login = new WebMarkupContainer("login") {
 
             @Override
-            public boolean isVisible() {
-                return SecurityUtils.getSubject().getPrincipal() == null;
+            protected void onConfigure() {
+                super.onConfigure();
+                setVisible(SecurityUtils.getSubject().getPrincipal() == null);
             }
 
         };
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
         internal.add(new RequiredTextField<String>("username"), new PasswordTextField("password"),
-                     new CheckBox("rememberme"), new AjaxButton("submit") {
+                     new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -94,8 +95,10 @@ public class IndexPage extends AbstractPage {
                     subject.login(token);
                     String js = new JsQuery().$("#crsl").chain("carousel", "{interval: false}")
                                                         .chain("carousel", "'next'").render().toString();
-                    target.appendJavaScript(js);
-                    target.add(IndexPage.this.get(NAVBAR_ID));
+                    if (target != null) {
+                        target.appendJavaScript(js);
+                        target.add(IndexPage.this.get(NAVBAR_ID));
+                    }
                 } catch (AuthenticationException ae) {
                     // TODO Handle errors
                 }
@@ -105,7 +108,7 @@ public class IndexPage extends AbstractPage {
 
         IModel<Game> gameModel = new CompoundPropertyModel<Game>(new Game());
         Form<?> join = new Form<Game>("join", gameModel);
-        join.add(new RequiredTextField<String>("code"), new AjaxButton("submit") {
+        join.add(new RequiredTextField<String>("code"), new AjaxFallbackButton("submit", join) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
