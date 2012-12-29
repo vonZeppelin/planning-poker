@@ -29,10 +29,15 @@
             <form wicket:id="internal">
               <fieldset>
                 <legend><wicket:message key="login.internal.hint" /></legend>
-                <label><wicket:message key="login.internal.username" /></label>
-                <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
-                <label><wicket:message key="login.internal.password" /></label>
-                <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
+                <div wicket:id="controls" class="control-group">
+                  <div class="controls">
+                    <label><wicket:message key="login.internal.username" /></label>
+                    <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
+                    <label><wicket:message key="login.internal.password" /></label>
+                    <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
+                    <span class="help-inline" wicket:id="feedback" ></span>
+                  </div>
+                </div>
                 <label class="checkbox">
                   <input type="checkbox" wicket:id="rememberme"><wicket:message key="login.remember" />
                 </label>
