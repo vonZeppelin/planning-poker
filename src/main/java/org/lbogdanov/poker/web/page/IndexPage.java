@@ -15,6 +15,8 @@
  */
 package org.lbogdanov.poker.web.page;
 
+import javax.inject.Inject;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -29,7 +31,8 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.io.IClusterable;
-import org.lbogdanov.poker.core.Session;
+import org.lbogdanov.poker.core.SessionService;
+import org.lbogdanov.poker.util.Settings;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 
 
@@ -61,6 +64,9 @@ public class IndexPage extends AbstractPage {
         private String description;
 
     }
+
+    @Inject
+    private SessionService sessionService;
 
     /**
      * Creates a new instance of <code>Index</code> page.
@@ -128,7 +134,7 @@ public class IndexPage extends AbstractPage {
 
             @Override
             public String getObject() {
-                return Session.newCode(7); // TODO Read from settings
+                return sessionService.newCode(Settings.SESSION_CODE_LENGTH.asInt().or(10));
             }
 
         });

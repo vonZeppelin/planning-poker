@@ -17,8 +17,18 @@ package org.lbogdanov.poker.core;
 
 
 /**
- * Represents a Planning Poker session.
+ * A service to create and manipulate {@link Session} instances.
  * 
  * @author Leonid Bogdanov
  */
-public class Session {}
+public interface SessionService {
+
+    /**
+     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
+     * 
+     * @param length the desired code length
+     * @return the new code
+     */
+    public String newCode(int length);
+
+}
