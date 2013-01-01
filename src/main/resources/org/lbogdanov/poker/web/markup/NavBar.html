@@ -1,26 +1,22 @@
 <wicket:panel>
-  <div class="navbar navbar-fixed-top navbar-inverse">
-    <div class="navbar-inner">
-      <p class="nav brand">Planning Poker</p>
-      <ul wicket:id="userMenu" class="nav pull-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <i class="icon-user icon-white"></i>
-            <span wicket:id="username"></span>
-            <b class="caret"></b>
-          </a>
-          <ul class="dropdown-menu" role="menu">
-            <li>Profile</li>
-            <li>Settings</li>
-            <wicket:enclosure>
-              <li class="divider" />
-              <li>
-                <a wicket:id="logout" href="#"><wicket:message key="logout.link" /></a>
-              </li>
-            </wicket:enclosure>
-          </ul>
-        </li>
+  <p class="nav brand">Planning Poker</p>
+  <ul wicket:id="userMenu" class="nav pull-right">
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="icon-user icon-white"></i>
+        <span wicket:id="username"></span>
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu" role="menu">
+        <li>Profile</li>
+        <li>Settings</li>
+        <wicket:enclosure>
+          <li class="divider" />
+          <li>
+            <a wicket:id="logout" href="#"><wicket:message key="logout.link" /></a>
+          </li>
+        </wicket:enclosure>
       </ul>
-    </div>
-  </div>
+    </li>
+  </ul>
 </wicket:panel>
