@@ -33,9 +33,11 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
@@ -94,8 +96,10 @@ public class IndexPage extends AbstractPage {
         };
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
-        internal.add(new RequiredTextField<String>("username"), new PasswordTextField("password"),
-                     new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
+        WebMarkupContainer controls = new WebMarkupContainer("controls");
+        controls.setOutputMarkupId(true);
+        controls.add(new RequiredTextField<String>("username"), new PasswordTextField("password"), new FeedbackPanel("feedback"));
+        internal.add(controls, new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -116,7 +120,9 @@ public class IndexPage extends AbstractPage {
                         target.add(getNavBar());
                     }
                 } catch (AuthenticationException ae) {
-                    // TODO Handle errors
+                    form.error(IndexPage.this.getString("login.internal.autherror"));
+                    form.get("controls").add(AttributeModifier.append("class", "error"));
+                    target.add(form.get("controls"));
                 }
             }
 
