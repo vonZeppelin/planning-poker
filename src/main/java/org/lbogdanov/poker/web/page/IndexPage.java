@@ -27,17 +27,15 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.util.LazyInitializer;
 import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
@@ -45,6 +43,8 @@ import org.apache.wicket.validation.ValidationError;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
 import org.odlabs.wiquery.core.javascript.JsQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -76,6 +76,35 @@ public class IndexPage extends AbstractPage {
 
     }
 
+    /**
+     * A helper class to add Boostrap validation styles to a control group.
+     */
+    private static final class ValidationModel extends AbstractReadOnlyModel<String> {
+
+        private String cssClass;
+        private LazyInitializer<FormComponent<?>> field;
+
+        public ValidationModel(final Form<?> form, final String field, String cssClass) {
+            this.cssClass = cssClass;
+            this.field = new LazyInitializer<FormComponent<?>>() {
+
+                @Override
+                protected FormComponent<?> createInstance() {
+                    return (FormComponent<?>) form.get(field);
+                }
+
+            };
+        }
+
+        @Override
+        public String getObject() {
+            return field.get().isValid() ? null : cssClass;
+        }
+
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexPage.class);
+
     @Inject
     private SessionService sessionService;
 
@@ -96,10 +125,11 @@ public class IndexPage extends AbstractPage {
         };
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
-        WebMarkupContainer controls = new WebMarkupContainer("controls");
-        controls.setOutputMarkupId(true);
-        controls.add(new RequiredTextField<String>("username"), new PasswordTextField("password"), new FeedbackPanel("feedback"));
-        internal.add(controls, new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
+        internal.add(new BootstrapFeedbackPanel("feedback"),
+                     new TransparentWebMarkupContainer("usernameGroup").add(append("class", new ValidationModel(internal, "username", "error"))),
+                     new TransparentWebMarkupContainer("passwordGroup").add(append("class", new ValidationModel(internal, "password", "error"))),
+                     new RequiredTextField<String>("username"), new PasswordTextField("password"),
+                     new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -120,16 +150,25 @@ public class IndexPage extends AbstractPage {
                         target.add(getNavBar());
                     }
                 } catch (AuthenticationException ae) {
+                    LOGGER.info("Authentication error", ae);
                     form.error(IndexPage.this.getString("login.internal.autherror"));
-                    form.get("controls").add(AttributeModifier.append("class", "error"));
-                    target.add(form.get("controls"));
+                    if (target != null) {
+                        target.add(form);
+                    }
+                }
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                if (target != null) {
+                    target.add(form);
                 }
             }
 
         });
 
         IModel<Game> gameModel = new CompoundPropertyModel<Game>(new Game());
-        final Form<?> join = new Form<Game>("join", gameModel);
+        Form<?> join = new Form<Game>("join", gameModel);
         IValidator<String> codeValidator = new IValidator<String>() {
 
             @Override
@@ -143,16 +182,8 @@ public class IndexPage extends AbstractPage {
             }
 
         };
-        AttributeModifier errorAppender = append("class", new AbstractReadOnlyModel<String>() {
-
-            @Override
-            public String getObject() {
-                return ((FormComponent<String>) join.get("code")).isValid() ? null : "error";
-            }
-
-        });
         join.add(new BootstrapFeedbackPanel("feedback"),
-                 new TransparentWebMarkupContainer("codeGroup").add(errorAppender),
+                 new TransparentWebMarkupContainer("codeGroup").add(append("class", new ValidationModel(join, "code", "error"))),
                  new RequiredTextField<String>("code").add(maximumLength(SESSION_CODE_MAX_LENGTH), codeValidator),
                  new AjaxFallbackButton("submit", join) {
 
@@ -183,7 +214,7 @@ public class IndexPage extends AbstractPage {
                    new RequiredTextField<String>("name").add(maximumLength(SESSION_NAME_MAX_LENGTH)),
                    new TextArea<String>("description"));
 
-        login.add(internal);
+        login.add(internal.setOutputMarkupId(true));
         session.add(join.setOutputMarkupId(true), create);
         session.add(append("class", new AbstractReadOnlyModel<String>() {
 

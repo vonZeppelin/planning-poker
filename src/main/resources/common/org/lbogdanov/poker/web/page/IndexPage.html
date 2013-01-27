@@ -29,33 +29,45 @@
             <form wicket:id="internal">
               <fieldset>
                 <legend><wicket:message key="login.internal.hint" /></legend>
-                <div wicket:id="controls" class="control-group">
+                <div class="control-group" wicket:id="usernameGroup">
+                  <label class="control-label" for="username"><wicket:message key="login.internal.username" /></label>
                   <div class="controls">
-                    <label><wicket:message key="login.internal.username" /></label>
-                    <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
-                    <label><wicket:message key="login.internal.password" /></label>
-                    <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
-                    <span class="help-inline" wicket:id="feedback" ></span>
+                    <input type="text" id="username" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
                   </div>
                 </div>
-                <label class="checkbox">
-                  <input type="checkbox" wicket:id="rememberme"><wicket:message key="login.remember" />
-                </label>
-                <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="login.internal.submit" /></button>
-                &nbsp;
-                <button type="reset" class="btn"><wicket:message key="login.internal.reset" /></button>
+                <div class="control-group" wicket:id="passwordGroup">
+                  <label class="control-label" for="password"><wicket:message key="login.internal.password" /></label>
+                  <div class="controls">
+                    <input type="password" id="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls">
+                    <label class="checkbox">
+                      <input type="checkbox" wicket:id="rememberme"><wicket:message key="login.remember" />
+                    </label>
+                    <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="login.internal.submit" /></button>
+                    &nbsp;
+                    <button type="reset" class="btn"><wicket:message key="login.internal.reset" /></button>
+                  </div>
+                </div>
               </fieldset>
+              <span wicket:id="feedback"></span>
             </form>
           </div>
           <div class="span6">
             <form>
               <fieldset>
                 <legend><wicket:message key="login.oauth.hint" /></legend>
-                <span class="help-block"><wicket:message key="login.oauth.help" /></span>
-                <label class="checkbox">
-                  <input type="checkbox"><wicket:message key="login.remember" />
-                </label>
-                <a href="#" type="submit" class="btn btn-primary disabled"><wicket:message key="login.oauth.go" /></a>
+                <div class="control-group">
+                  <div class="controls">
+                    <span class="help-block"><wicket:message key="login.oauth.help" /></span>
+                    <label class="checkbox">
+                      <input type="checkbox"><wicket:message key="login.remember" />
+                    </label>
+                    <a href="#" type="submit" class="btn btn-primary disabled"><wicket:message key="login.oauth.go" /></a>
+                  </div>
+                </div>
               </fieldset>
             </form>
           </div>
@@ -83,10 +95,18 @@
             <form wicket:id="create">
               <fieldset>
                 <legend><wicket:message key="session.create" /></legend>
-                <label><wicket:message key="session.create.name" /></label>
-                <input type="text" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
-                <label><wicket:message key="session.create.description" /></label>
-                <textarea wicket:id="description" rows="4"></textarea><br>
+                <div class="control-group">
+                  <label class="control-label" for="name"><wicket:message key="session.create.name" /></label>
+                  <div class="controls">
+                    <input type="text" id="name" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="description"><wicket:message key="session.create.description" /></label>
+                  <div class="controls">
+                    <textarea id="description" wicket:id="description" rows="4"></textarea>
+                  </div>
+                </div>
                 <button type="submit" class="btn btn-primary"><wicket:message key="session.create.hint" /></button>
               </fieldset>
               <span wicket:id="feedback"></span>
