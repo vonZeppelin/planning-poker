@@ -15,10 +15,108 @@
  */
 package org.lbogdanov.poker.core;
 
+import static org.lbogdanov.poker.core.Constants.SESSION_CODE_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
+
+import javax.persistence.*;
+
+import com.google.common.base.Objects;
+
 
 /**
  * Represents a Planning Poker session.
  * 
  * @author Leonid Bogdanov
  */
-public class Session {}
+@Entity
+@Table(name="SESSIONS")
+public class Session extends AbstractEntity {
+
+    @Column(name="NAME", length=SESSION_NAME_MAX_LENGTH, nullable=false)
+    private String name;
+    @Column(name="CODE", length=SESSION_CODE_MAX_LENGTH, nullable=false, unique=true)
+    private String code;
+    @Lob
+    @Column(name="DESCRIPTION", nullable=true)
+    private String description;
+    @ManyToOne(optional=false)
+    @JoinColumn(name="AUTHOR_ID")
+    private User author;
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the code
+     */
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * @param code the code to set
+     */
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return the author
+     */
+    public User getAuthor() {
+        return author;
+    }
+
+    /**
+     * @param author the author to set
+     */
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getCode());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Session) {
+            Session other = (Session) obj;
+            return Objects.equal(getCode(), other.getCode());
+        }
+        return false;
+    }
+
+}

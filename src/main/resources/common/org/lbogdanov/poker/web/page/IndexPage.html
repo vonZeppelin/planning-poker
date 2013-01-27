@@ -61,26 +61,30 @@
             <form wicket:id="join">
               <fieldset>
                 <legend><wicket:message key="session.join" /></legend>
-                <div class="input-append">
-                  <label><wicket:message key="session.code" /></label>
-                  <input type="text" wicket:id="code" wicket:message="placeholder:session.code.hint" required>
-                  <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.join.hint" /></button>
+                <div class="control-group" wicket:id="codeGroup">
+                    <label class="control-label" for="code"><wicket:message key="session.join.code" /></label>
+                    <div class="controls">
+                      <div class="input-append">
+                        <input type="text" id="code" wicket:id="code" wicket:message="placeholder:session.join.code.hint" required>
+                        <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.join.hint" /></button>
+                    </div>
+                  </div>
                 </div>
               </fieldset>
+              <span wicket:id="feedback"></span>
             </form>
           </div>
           <div class="span6">
             <form wicket:id="create">
               <fieldset>
                 <legend><wicket:message key="session.create" /></legend>
-                <label><wicket:message key="session.name" /></label>
-                <input type="text" wicket:id="name" wicket:message="placeholder:session.name.hint" required>
-                <label><wicket:message key="session.description" /></label>
-                <textarea wicket:id="description" rows="4"></textarea>
-                <label><wicket:message key="session.code" /></label>
-                <input type="text" class="disabled" wicket:id="code"><br>
+                <label><wicket:message key="session.create.name" /></label>
+                <input type="text" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
+                <label><wicket:message key="session.create.description" /></label>
+                <textarea wicket:id="description" rows="4"></textarea><br>
                 <button type="submit" class="btn btn-primary"><wicket:message key="session.create.hint" /></button>
               </fieldset>
+              <span wicket:id="feedback"></span>
             </form>
           </div>
         </div>

@@ -30,7 +30,7 @@ import fiftyfive.wicket.shiro.markup.LogoutLink;
  * 
  * @author Leonid Bogdanov
  */
-public class NavBar extends Panel {
+public class NavBar extends Panel { // TODO Remove this class?
 
     /**
      * @see Panel#Panel(String)

@@ -17,26 +17,16 @@ package org.lbogdanov.poker.core;
 
 
 /**
- * A service to create and manipulate {@link Session} instances.
+ * A utility class that holds various constant values.
  * 
  * @author Leonid Bogdanov
  */
-public interface SessionService {
+public final class Constants {
 
-    /**
-     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
-     * 
-     * @param length the desired code length
-     * @return the new code
-     */
-    public String newCode(int length);
+    public static final int SESSION_CODE_DEFAULT_LENGTH = 10;
+    public static final int SESSION_CODE_MAX_LENGTH = 32;
+    public static final int SESSION_NAME_MAX_LENGTH = 128;
 
-    /**
-     * Checks whether a session with a specified code exists.
-     * 
-     * @param code the session code
-     * @return <b>true</b> if the session with the specified code exists, otherwise <b>false</b>
-     */
-    public boolean exists(String code);
+    private Constants() {}
 
 }

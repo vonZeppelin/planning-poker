@@ -18,9 +18,13 @@ package org.lbogdanov.poker.core.impl;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
+
+import com.avaje.ebean.EbeanServer;
 
 
 /**
@@ -31,6 +35,9 @@ import org.lbogdanov.poker.core.SessionService;
 @Singleton
 public class SessionServiceImpl implements SessionService {
 
+    @Inject
+    private EbeanServer ebean;
+
     /**
      * {@inheritDoc}
      */
@@ -38,16 +45,29 @@ public class SessionServiceImpl implements SessionService {
     public String newCode(int length) {
         Random rnd = new SecureRandom();
         StringBuilder code = new StringBuilder(length);
-        while (code.length() < length) {
-            if (rnd.nextBoolean()) { // append new letter or digit?
-                char letter = (char) ('a' + rnd.nextInt(26));
-                code.append(rnd.nextBoolean() ? Character.toUpperCase(letter) : letter);
-            } else {
-                code.append(rnd.nextInt(10));
+        do {
+            code.setLength(0);
+            while (code.length() < length) {
+                if (rnd.nextBoolean()) { // append new letter or digit?
+                    char letter = (char) ('a' + rnd.nextInt(26));
+                    code.append(rnd.nextBoolean() ? Character.toUpperCase(letter) : letter);
+                } else {
+                    code.append(rnd.nextInt(10));
+                }
             }
-        }
+        } while (exists(code.toString()));
         return code.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean exists(String code) {
+        return ebean.find(Session.class)
+                    .where()
+                    .eq("code", code)
+                    .findRowCount() != 0;
+    }
 
 }

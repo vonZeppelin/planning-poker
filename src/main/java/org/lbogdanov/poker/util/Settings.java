@@ -20,11 +20,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
@@ -38,7 +36,7 @@ import com.google.common.primitives.Longs;
  * @author Leonid Bogdanov
  */
 public enum Settings {
-    SESSION_CODE_LENGTH;
+    SESSION_CODE_LENGTH, DEVELOPMENT_MODE, DB_DATA_SOURCE, DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 
@@ -104,6 +102,17 @@ public enum Settings {
     }
 
     /**
+     * Returns a value of a setting as <code>Boolean</code>. The value is returned as an instance of
+     * {@link Optional} class to indicate the fact that it can be missing.
+     * 
+     * @return the value of the setting
+     */
+    public Optional<Boolean> asBool() {
+        Optional<String> value = asString();
+        return value.isPresent() ? Optional.of(Boolean.valueOf(value.get())) : Optional.<Boolean>absent();
+    }
+
+    /**
      * Returns a value of a setting as <code>String</code>. The value is returned as an instance of
      * {@link Optional} class to indicate the fact that it can be missing.
      * 
@@ -118,16 +127,7 @@ public enum Settings {
     }
 
     private Settings() {
-        Splitter underscore = Splitter.on('_');
-        Joiner dot = Joiner.on('.');
-        key = dot.join(Iterables.transform(underscore.split(name()), new Function<String, String>() {
-
-            @Override
-            public String apply(String input) {
-                return input.toLowerCase();
-            }
-
-        }));
+        key = Joiner.on('.').join(Splitter.on('_').split(name().toLowerCase()));
     }
 
 }

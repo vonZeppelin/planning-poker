@@ -5,7 +5,7 @@
   <display-name>Planning poker</display-name>
 
   <listener>
-    <listener-class>org.lbogdanov.poker.web.ServletContextListener</listener-class>
+    <listener-class>org.lbogdanov.poker.web.AppInitializer</listener-class>
   </listener>
 
   <filter>

@@ -30,7 +30,7 @@ import org.lbogdanov.poker.web.markup.NavBar;
  */
 abstract class AbstractPage extends WebPage {
 
-    protected static final String NAVBAR_ID = "navbar";
+    private NavBar navBar;
 
     /**
      * @see WebPage#WebPage()
@@ -64,10 +64,20 @@ abstract class AbstractPage extends WebPage {
     }
 
     /**
+     * Returns a <code>NavBar</code> instance.
+     * 
+     * @return the <code>NavBar</code> instance
+     */
+    public NavBar getNavBar() {
+        return navBar;
+    }
+
+    /**
      * Performs page initialization.
      */
     protected void init() {
-        add(new NavBar(NAVBAR_ID).setOutputMarkupId(true));
+        navBar = new NavBar("navbar");
+        add(navBar.setOutputMarkupId(true));
     }
 
 }

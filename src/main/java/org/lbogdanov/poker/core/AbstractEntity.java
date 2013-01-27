@@ -15,28 +15,43 @@
  */
 package org.lbogdanov.poker.core;
 
+import java.io.Serializable;
+
+import javax.persistence.*;
+
 
 /**
- * A service to create and manipulate {@link Session} instances.
+ * A parent class to be extended by every JPA-mapped entity.
  * 
  * @author Leonid Bogdanov
  */
-public interface SessionService {
+@MappedSuperclass
+abstract class AbstractEntity implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ID", nullable=false, unique=true)
+    private Long id;
 
     /**
-     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
+     * Returns an ID value.
      * 
-     * @param length the desired code length
-     * @return the new code
+     * @return the ID value
      */
-    public String newCode(int length);
+    public Long getId() {
+        return id;
+    }
 
     /**
-     * Checks whether a session with a specified code exists.
-     * 
-     * @param code the session code
-     * @return <b>true</b> if the session with the specified code exists, otherwise <b>false</b>
+     * {@inheritDoc}
      */
-    public boolean exists(String code);
+    @Override
+    public abstract int hashCode();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract boolean equals(Object obj);
 
 }

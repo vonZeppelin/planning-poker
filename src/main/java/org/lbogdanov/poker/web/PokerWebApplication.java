@@ -43,7 +43,15 @@ public class PokerWebApplication extends WebApplication {
     @Override
     protected void init() {
         super.init();
-        new ShiroWicketPlugin().mountLoginPage(null, getHomePage()).install(this);
+        new ShiroWicketPlugin() {
+
+            @Override
+            public void onLoggedOut() {};
+
+            @Override
+            public void onLoginRequired() {};
+
+        }.mountLoginPage(null, getHomePage()).install(this);
     }
 
 }
