@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -9,4 +8,5 @@
   <root level="INFO">
     <appender-ref ref="stdout" />
   </root>
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator" />
 </configuration>
