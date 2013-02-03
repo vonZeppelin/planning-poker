@@ -37,6 +37,7 @@ import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.core.impl.SessionServiceImpl;
 import org.lbogdanov.poker.core.impl.UserServiceImpl;
 import org.lbogdanov.poker.util.Settings;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.EbeanServerFactory;
@@ -77,6 +78,8 @@ public class AppInitializer extends GuiceServletContextListener {
      */
     @Override
     protected Injector getInjector() {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
         try {
             InputStream settings = Resources.newInputStreamSupplier(Resources.getResource("settings.properties")).getInput();
             Properties props = new Properties();
