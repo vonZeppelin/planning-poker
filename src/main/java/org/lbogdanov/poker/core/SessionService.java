@@ -24,19 +24,28 @@ package org.lbogdanov.poker.core;
 public interface SessionService {
 
     /**
-     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
-     * 
-     * @param length the desired code length
-     * @return the new code
-     */
-    public String newCode(int length);
-
-    /**
      * Checks whether a session with a specified code exists.
      * 
      * @param code the session code
      * @return <b>true</b> if the session with the specified code exists, otherwise <b>false</b>
      */
     public boolean exists(String code);
+
+    /**
+     * Returns a session with a specified code, or <code>null</code> if no such session exists.
+     * 
+     * @param code the session code
+     * @return the session
+     */
+    public Session find(String code);
+
+    /**
+     * Creates a new session object and persists it in a storage.
+     * 
+     * @param name the session name
+     * @param description the session description
+     * @return a newly created <code>Session</code> object
+     */
+    public Session create(String name, String description);
 
 }

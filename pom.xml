@@ -38,7 +38,7 @@
             <artifactId>wicket-bootstrap</artifactId>
             <version>0.6</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.odlabs.wiquery</groupId>
             <artifactId>wiquery-core</artifactId>
             <version>6.2.0</version>
@@ -48,7 +48,7 @@
                 <artifactId>jackson-mapper-asl</artifactId>
               </exclusion>
             </exclusions>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
@@ -100,6 +100,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

@@ -40,7 +40,7 @@ public enum Settings {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 
-    private static Map<Settings, String> settings;
+    private static Map<Settings, String> settings = Maps.newEnumMap(Settings.class);
 
     private final String key;
 
@@ -50,7 +50,7 @@ public enum Settings {
      * @param config <code>Map</code> instance that holds settings values
      */
     public static void init(Map<String, String> config) {
-        settings = Maps.newEnumMap(Settings.class);
+        settings.clear();
         for (Settings setting : Settings.values()) {
             String value = config.get(setting.key);
             if (value == null) {

@@ -15,6 +15,10 @@
  */
 package org.lbogdanov.poker.core;
 
+import static org.lbogdanov.poker.core.Constants.USER_EXTERNAL_ID_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.USER_FIRST_NAME_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.USER_LAST_NAME_MAX_LENGTH;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -31,14 +35,16 @@ import com.google.common.base.Objects;
 @Table(name="USERS")
 public class User extends AbstractEntity {
 
-    @Column(name="FIRST_NAME", length=128, nullable=false)
-    private String firstName;
-    @Column(name="LAST_NAME", length=128, nullable=true)
-    private String lastName;
-    @Column(name="EXTERNAL_ID", length=64, nullable=false, unique=true)
-    private String externalId;
+    @Column(name="FIRST_NAME", length=USER_FIRST_NAME_MAX_LENGTH, nullable=false)
+    private String firstName = "";
+    @Column(name="LAST_NAME", length=USER_LAST_NAME_MAX_LENGTH, nullable=true)
+    private String lastName = "";
+    @Column(name="EXTERNAL_ID", length=USER_EXTERNAL_ID_MAX_LENGTH, nullable=false, unique=true)
+    private String externalId = "";
 
     /**
+     * Returns a user's first name.
+     * 
      * @return the firstName
      */
     public String getFirstName() {
@@ -46,38 +52,48 @@ public class User extends AbstractEntity {
     }
 
     /**
-     * @param firstName the firstName to set
+     * Sets a user's first name, only the first {@link Constants.USER_FIRST_NAME_MAX_LENGTH} characters are stored.
+     * 
+     * @param firstName the first name to set
      */
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.firstName = limitString(firstName, USER_FIRST_NAME_MAX_LENGTH);
     }
 
     /**
-     * @return the lastName
+     * Returns a user's last name.
+     * 
+     * @return the last name
      */
     public String getLastName() {
         return lastName;
     }
 
     /**
-     * @param lastName the lastName to set
+     * Sets a user's last name, only the first {@link Constants.USER_LAST_NAME_MAX_LENGTH} characters are stored.
+     * 
+     * @param lastName the last name to set
      */
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.lastName = limitString(lastName, USER_LAST_NAME_MAX_LENGTH);
     }
 
     /**
-     * @return the externalId
+     *  Returns a user's ID in an external system from which the user originates.
+     * 
+     * @return the external ID
      */
     public String getExternalId() {
         return externalId;
     }
 
     /**
-     * @param externalId the externalId to set
+     * Sets a user's ID in an external system, only the first {@link Constants.USER_EXTERNAL_ID_MAX_LENGTH} characters are stored.
+     * 
+     * @param externalId the external ID
      */
     public void setExternalId(String externalId) {
-        this.externalId = externalId;
+        this.externalId = limitString(externalId, USER_EXTERNAL_ID_MAX_LENGTH);
     }
 
     /**

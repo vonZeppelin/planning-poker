@@ -15,7 +15,14 @@
  */
 package org.lbogdanov.poker.web.page;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.shiro.authz.annotation.RequiresUser;
+import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.lbogdanov.poker.core.Session;
+import org.lbogdanov.poker.core.SessionService;
 
 
 /**
@@ -26,9 +33,17 @@ import org.apache.shiro.authz.annotation.RequiresUser;
 @RequiresUser
 public class SessionPage extends AbstractPage {
 
+    @Inject
+    private SessionService sessionService;
+
     /**
      * Creates a new instance of <code>Session</code> page.
      */
-    public SessionPage() {}
+    public SessionPage(PageParameters parameters) {
+        Session session = sessionService.find(parameters.get("code").toString());
+        if (session == null) {
+            throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, "Session not found");
+        }
+    }
 
 }

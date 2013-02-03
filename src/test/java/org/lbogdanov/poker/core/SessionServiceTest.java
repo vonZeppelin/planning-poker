@@ -18,6 +18,7 @@ import org.mockito.stubbing.Answer;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.TxCallable;
 
 
 /**
@@ -52,21 +53,27 @@ public class SessionServiceTest {
         });
         when(query.where()).thenReturn(exprList);
         when(ebean.find(Session.class)).thenReturn(query);
+        when(ebean.execute(any(TxCallable.class))).thenAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return ((TxCallable<?>) invocation.getArguments()[0]).call();
+            }
+
+        });
     }
 
     /**
      * Test method for {@link SessionService#newCode(int)}.
      */
     @Test
-    public void testNewCode() {
-        String regex = "\\w{5}";
-        String code1 = sessionService.newCode(5);
-        String code2 = sessionService.newCode(5);
-        assertNotEquals(code1, code2);
-        assertTrue(code1.matches(regex));
-        assertTrue(code2.matches(regex));
-        assertEquals(3, sessionService.newCode(3).length());
-        assertEquals(25, sessionService.newCode(25).length());
+    public void testCreate() {
+        String regex = "\\w{10}";
+        Session session1 = sessionService.create("Session1", "");
+        Session session2 = sessionService.create("Session2", "");
+        assertNotEquals(session1.getCode(), session2.getCode());
+        assertTrue(session1.getCode().matches(regex));
+        assertTrue(session2.getCode().matches(regex));
     }
 
 }

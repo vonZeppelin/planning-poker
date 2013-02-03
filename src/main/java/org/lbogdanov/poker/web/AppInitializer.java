@@ -33,7 +33,9 @@ import org.apache.wicket.protocol.http.WicketFilter;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.User;
+import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.core.impl.SessionServiceImpl;
+import org.lbogdanov.poker.core.impl.UserServiceImpl;
 import org.lbogdanov.poker.util.Settings;
 
 import com.avaje.ebean.EbeanServer;
@@ -120,6 +122,7 @@ public class AppInitializer extends GuiceServletContextListener {
 
                 bind(EbeanServer.class).toInstance(EbeanServerFactory.create(dbConfig));
                 bind(SessionService.class).to(SessionServiceImpl.class);
+                bind(UserService.class).to(UserServiceImpl.class);
                 bind(WebApplication.class).to(PokerWebApplication.class);
                 bind(WicketFilter.class).in(Singleton.class);
                 String wicketConfig = (Settings.DEVELOPMENT_MODE.asBool().or(false) ? RuntimeConfigurationType.DEVELOPMENT

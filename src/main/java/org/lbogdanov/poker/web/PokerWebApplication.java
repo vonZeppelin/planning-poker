@@ -15,9 +15,19 @@
  */
 package org.lbogdanov.poker.web;
 
+import javax.inject.Singleton;
+
+import org.apache.shiro.SecurityUtils;
 import org.apache.wicket.Page;
+import org.apache.wicket.Session;
+import org.apache.wicket.core.request.mapper.CryptoMapper;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WebSession;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
+import org.lbogdanov.poker.util.Settings;
 import org.lbogdanov.poker.web.page.IndexPage;
+import org.lbogdanov.poker.web.page.SessionPage;
 
 import fiftyfive.wicket.shiro.ShiroWicketPlugin;
 
@@ -27,6 +37,7 @@ import fiftyfive.wicket.shiro.ShiroWicketPlugin;
  * 
  * @author Leonid Bogdanov
  */
+@Singleton
 public class PokerWebApplication extends WebApplication {
 
     /**
@@ -41,17 +52,37 @@ public class PokerWebApplication extends WebApplication {
      * {@inheritDoc}
      */
     @Override
+    public Session newSession(Request request, Response response) {
+        return new WebSession(request) {
+
+            @Override
+            public void replaceSession() {
+                SecurityUtils.getSubject().getSession().stop();
+                super.replaceSession();
+            }
+
+        };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void init() {
         super.init();
         new ShiroWicketPlugin() {
 
             @Override
-            public void onLoggedOut() {};
+            public void onLoggedOut() {}
 
             @Override
-            public void onLoginRequired() {};
+            public void onLoginRequired() {}
 
         }.mountLoginPage(null, getHomePage()).install(this);
+        if (!Settings.DEVELOPMENT_MODE.asBool().or(false)) {
+            setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
+        }
+        mountPage("/session/${code}", SessionPage.class);
     }
 
 }

@@ -15,12 +15,15 @@
  */
 package org.lbogdanov.poker.web.markup;
 
-import org.apache.shiro.SecurityUtils;
+import javax.inject.Inject;
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.util.string.Strings;
+import org.lbogdanov.poker.core.User;
+import org.lbogdanov.poker.core.UserService;
 
 import fiftyfive.wicket.shiro.markup.LogoutLink;
 
@@ -32,6 +35,9 @@ import fiftyfive.wicket.shiro.markup.LogoutLink;
  */
 public class NavBar extends Panel { // TODO Remove this class?
 
+    @Inject
+    private UserService userService;
+
     /**
      * @see Panel#Panel(String)
      */
@@ -42,7 +48,7 @@ public class NavBar extends Panel { // TODO Remove this class?
             @Override
             protected void onConfigure() {
                 super.onConfigure();
-                setVisible(SecurityUtils.getSubject().getPrincipal() != null);
+                setVisible(userService.getCurrentUser() != null);
             }
 
         };
@@ -50,7 +56,8 @@ public class NavBar extends Panel { // TODO Remove this class?
 
             @Override
             public String getObject() {
-                return Strings.toString(SecurityUtils.getSubject().getPrincipal());
+                User user = userService.getCurrentUser();
+                return Strings.join(" ", user.getFirstName(), user.getLastName());
             }
 
         });

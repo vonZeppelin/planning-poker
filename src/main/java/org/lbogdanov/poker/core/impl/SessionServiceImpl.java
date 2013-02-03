@@ -23,8 +23,11 @@ import javax.inject.Singleton;
 
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
+import org.lbogdanov.poker.core.UserService;
+import org.lbogdanov.poker.util.Settings;
 
 import com.avaje.ebean.EbeanServer;
+import com.avaje.ebean.TxCallable;
 
 
 /**
@@ -37,18 +40,78 @@ public class SessionServiceImpl implements SessionService {
 
     @Inject
     private EbeanServer ebean;
+    @Inject
+    private UserService userService;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String newCode(int length) {
+    public boolean exists(final String code) {
+        return ebean.execute(new TxCallable<Boolean>() {
+
+            @Override
+            public Boolean call() {
+                return ebean.find(Session.class)
+                            .where()
+                            .eq("code", code)
+                            .findRowCount() != 0;
+            }
+
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Session find(final String code) {
+        return ebean.execute(new TxCallable<Session>() {
+
+            @Override
+            public Session call() {
+                return ebean.find(Session.class)
+                            .where()
+                            .eq("code", code)
+                            .findUnique();
+            }
+
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Session create(final String name, final String description) {
+        return ebean.execute(new TxCallable<Session>() {
+
+            @Override
+            public Session call() {
+                Session session = new Session();
+                session.setName(name);
+                session.setDescription(description);
+                session.setCode(newCode(Settings.SESSION_CODE_LENGTH.asInt().or(10)));
+                session.setAuthor(userService.getCurrentUser());
+                ebean.save(session);
+                return session;
+            }
+
+        });
+    }
+
+    /**
+     * Generates a new alphanumeric code of a specified length which can be used to uniquely identify a session.
+     * 
+     * @param length the desired code length
+     * @return the new code
+     */
+    private String newCode(int length) {
         Random rnd = new SecureRandom();
         StringBuilder code = new StringBuilder(length);
         do {
             code.setLength(0);
             while (code.length() < length) {
-                if (rnd.nextBoolean()) { // append new letter or digit?
+                if (rnd.nextBoolean()) { // append a new letter or digit?
                     char letter = (char) ('a' + rnd.nextInt(26));
                     code.append(rnd.nextBoolean() ? Character.toUpperCase(letter) : letter);
                 } else {
@@ -57,17 +120,6 @@ public class SessionServiceImpl implements SessionService {
             }
         } while (exists(code.toString()));
         return code.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean exists(String code) {
-        return ebean.find(Session.class)
-                    .where()
-                    .eq("code", code)
-                    .findRowCount() != 0;
     }
 
 }

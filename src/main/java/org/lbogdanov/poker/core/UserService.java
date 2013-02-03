@@ -17,20 +17,27 @@ package org.lbogdanov.poker.core;
 
 
 /**
- * A utility class that holds various constant values.
+ * A service to manipulate {@link User}.
  * 
  * @author Leonid Bogdanov
  */
-public final class Constants {
+public interface UserService {
 
-    public static final int SESSION_CODE_DEFAULT_LENGTH = 10;
-    public static final int SESSION_CODE_MAX_LENGTH = 32;
-    public static final int SESSION_NAME_MAX_LENGTH = 128;
-    public static final int SESSION_DESCRIPTION_MAX_LENGTH = 4096;
-    public static final int USER_FIRST_NAME_MAX_LENGTH = 128;
-    public static final int USER_LAST_NAME_MAX_LENGTH = 128;
-    public static final int USER_EXTERNAL_ID_MAX_LENGTH = 64;
+    /**
+     * Returns currently logged in <code>User</code> instance.
+     * 
+     * @return the <code>User</code> object or <code>null</code> for an anonymous user
+     */
+    public User getCurrentUser();
 
-    private Constants() {}
+    /**
+     * Performs a login attempt with specified credentials.
+     * 
+     * @param username the user name
+     * @param password the password
+     * @param rememberme  if a user identity should be remembered across sessions
+     * @throws <code>RuntimeException</code> if the authentication attempt fails
+     */
+    public void login(String username, String password, boolean rememberme);
 
 }

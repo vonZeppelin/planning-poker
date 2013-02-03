@@ -18,15 +18,11 @@ package org.lbogdanov.poker.web.page;
 import static org.apache.wicket.AttributeModifier.append;
 import static org.apache.wicket.validation.validator.StringValidator.maximumLength;
 import static org.lbogdanov.poker.core.Constants.SESSION_CODE_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.SESSION_DESCRIPTION_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
 
 import javax.inject.Inject;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
@@ -35,14 +31,16 @@ import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.LazyInitializer;
 import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
+import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
+import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
-import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +105,8 @@ public class IndexPage extends AbstractPage {
 
     @Inject
     private SessionService sessionService;
+    @Inject
+    private UserService userService;
 
     /**
      * Creates a new instance of <code>Index</code> page.
@@ -119,7 +119,7 @@ public class IndexPage extends AbstractPage {
             @Override
             protected void onConfigure() {
                 super.onConfigure();
-                setVisible(SecurityUtils.getSubject().getPrincipal() == null);
+                setVisible(userService.getCurrentUser() == null);
             }
 
         };
@@ -134,24 +134,16 @@ public class IndexPage extends AbstractPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 Credentials credentials = (Credentials) form.getModelObject();
-                Subject subject = SecurityUtils.getSubject();
-                // force a new session to prevent session fixation attack
-                subject.getSession().stop();
                 getSession().replaceSession();
-                AuthenticationToken token = new UsernamePasswordToken(credentials.username,
-                                                                      credentials.password,
-                                                                      credentials.rememberme);
                 try {
-                    subject.login(token);
-                    String js = new JsQuery().$("#crsl").chain("carousel", "{interval: false}")
-                                                        .chain("carousel", "'next'").render().toString();
+                    userService.login(credentials.username, credentials.password, credentials.rememberme);
                     if (target != null) {
-                        target.appendJavaScript(js);
+                        target.appendJavaScript("$('#crsl').carousel({interval: false}).carousel('next')");
                         target.add(getNavBar());
                     }
-                } catch (AuthenticationException ae) {
-                    LOGGER.info("Authentication error", ae);
-                    form.error(IndexPage.this.getString("login.internal.autherror"));
+                } catch (RuntimeException re) {
+                    LOGGER.info("Authentication error", re);
+                    form.error(IndexPage.this.getString("login.internal.authError"));
                     if (target != null) {
                         target.add(form);
                     }
@@ -190,7 +182,7 @@ public class IndexPage extends AbstractPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 Game game = (Game) form.getModelObject();
-                setResponsePage(SessionPage.class);
+                setResponsePage(SessionPage.class, new PageParameters().add("code", game.code));
             }
 
             @Override
@@ -204,15 +196,17 @@ public class IndexPage extends AbstractPage {
         Form<?> create = new Form<Game>("create", gameModel) {
 
             @Override
+            @SuppressWarnings("hiding")
             protected void onSubmit() {
                 Game game = getModelObject();
-                setResponsePage(SessionPage.class);
+                Session session = sessionService.create(game.name, game.description);
+                setResponsePage(SessionPage.class, new PageParameters().add("code", session.getCode()));
             }
 
         };
         create.add(new BootstrapFeedbackPanel("feedback"),
                    new RequiredTextField<String>("name").add(maximumLength(SESSION_NAME_MAX_LENGTH)),
-                   new TextArea<String>("description"));
+                   new TextArea<String>("description").add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH)));
 
         login.add(internal.setOutputMarkupId(true));
         session.add(join.setOutputMarkupId(true), create);
@@ -220,7 +214,7 @@ public class IndexPage extends AbstractPage {
 
             @Override
             public String getObject() {
-                return SecurityUtils.getSubject().getPrincipal() != null ? "active" : null;
+                return userService.getCurrentUser() != null ? "active" : null;
             }
 
         }));

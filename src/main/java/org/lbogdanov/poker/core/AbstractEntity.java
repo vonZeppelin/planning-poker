@@ -19,6 +19,8 @@ import java.io.Serializable;
 
 import javax.persistence.*;
 
+import com.google.common.base.Strings;
+
 
 /**
  * A parent class to be extended by every JPA-mapped entity.
@@ -26,7 +28,7 @@ import javax.persistence.*;
  * @author Leonid Bogdanov
  */
 @MappedSuperclass
-abstract class AbstractEntity implements Serializable {
+public abstract class AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,6 +45,15 @@ abstract class AbstractEntity implements Serializable {
     }
 
     /**
+     * Sets an ID value.
+     * 
+     * @return the ID value
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -53,5 +64,17 @@ abstract class AbstractEntity implements Serializable {
      */
     @Override
     public abstract boolean equals(Object obj);
+
+    /**
+     * Ensures that an input string won't be longer than a specified limit, treats <code>null</code> as empty strings.
+     * 
+     * @param string the input string, can be <code>null</code>
+     * @param maxLen the max length of the output string
+     * @return the output string
+     */
+    protected static String limitString(String string, int maxLen) {
+        String str = Strings.nullToEmpty(string);
+        return str.substring(0, Math.min(maxLen, str.length()));
+    }
 
 }
