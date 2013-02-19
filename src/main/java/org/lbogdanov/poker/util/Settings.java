@@ -36,7 +36,8 @@ import com.google.common.primitives.Longs;
  * @author Leonid Bogdanov
  */
 public enum Settings {
-    SESSION_CODE_LENGTH, DEVELOPMENT_MODE, DB_DATA_SOURCE, DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD;
+    SESSION_CODE_LENGTH, DEVELOPMENT_MODE, DB_DATA_SOURCE, DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD,
+    GOOGLE_OAUTH_KEY, GOOGLE_OAUTH_SECRET;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 

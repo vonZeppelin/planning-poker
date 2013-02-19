@@ -30,13 +30,17 @@ import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.guice.GuiceWebApplicationFactory;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WicketFilter;
-import org.lbogdanov.poker.core.Session;
-import org.lbogdanov.poker.core.SessionService;
-import org.lbogdanov.poker.core.User;
-import org.lbogdanov.poker.core.UserService;
+import org.lbogdanov.poker.core.*;
 import org.lbogdanov.poker.core.impl.SessionServiceImpl;
 import org.lbogdanov.poker.core.impl.UserServiceImpl;
 import org.lbogdanov.poker.util.Settings;
+import org.lbogdanov.poker.web.oauth.CallbackUrlSetter;
+import org.lbogdanov.poker.web.oauth.InjectableOAuthFilter;
+import org.lbogdanov.poker.web.oauth.InjectableOAuthRealm;
+import org.lbogdanov.poker.web.oauth.InjectableOAuthUserFilter;
+import org.scribe.up.provider.OAuthProvider;
+import org.scribe.up.provider.impl.Google2Provider;
+import org.scribe.up.provider.impl.Google2Provider.Google2Scope;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.avaje.ebean.EbeanServer;
@@ -48,9 +52,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 
@@ -95,9 +97,26 @@ public class AppInitializer extends GuiceServletContextListener {
         Module shiroModule = new ShiroWebModule(servletContext) {
 
             @Override
+            @SuppressWarnings("unchecked")
             protected void configureShiroWeb() {
+                bind(CallbackUrlSetter.class);
+                expose(CallbackUrlSetter.class);
                 // TODO simple ini-based realm for development
                 bindRealm().toInstance(new IniRealm(IniFactorySupport.loadDefaultClassPathIni()));
+                bindRealm().to(InjectableOAuthRealm.class).in(Singleton.class);
+
+                addFilterChain("/" + Constants.OAUTH_CLBK_FILTER_URL, Key.get(InjectableOAuthFilter.class));
+                addFilterChain("/" + Constants.OAUTH_FILTER_URL, Key.get(InjectableOAuthUserFilter.class));
+            }
+
+            @Provides @Singleton
+            private OAuthProvider getOAuthProvider() {
+                Google2Provider provider = new Google2Provider();
+                provider.setKey(Settings.GOOGLE_OAUTH_KEY.asString().or("anonymous"));
+                provider.setSecret(Settings.GOOGLE_OAUTH_SECRET.asString().or("anonymous"));
+                provider.setCallbackUrl("example.com"); // fake URL, will be replaced by CallbackUrlSetter
+                provider.setScope(Google2Scope.PROFILE);
+                return provider;
             }
 
         };

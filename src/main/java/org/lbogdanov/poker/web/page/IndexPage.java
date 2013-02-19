@@ -17,6 +17,7 @@ package org.lbogdanov.poker.web.page;
 
 import static org.apache.wicket.AttributeModifier.append;
 import static org.apache.wicket.validation.validator.StringValidator.maximumLength;
+import static org.lbogdanov.poker.core.Constants.OAUTH_CLBK_FILTER_URL;
 import static org.lbogdanov.poker.core.Constants.SESSION_CODE_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_DESCRIPTION_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
@@ -31,6 +32,7 @@ import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.Url;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.LazyInitializer;
 import org.apache.wicket.util.io.IClusterable;
@@ -41,6 +43,7 @@ import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
+import org.lbogdanov.poker.web.oauth.CallbackUrlSetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +78,7 @@ public class IndexPage extends AbstractPage {
     }
 
     /**
-     * A helper class to add Boostrap validation styles to a control group.
+     * A helper class to add Bootstrap validation styles to a control group.
      */
     private static final class ValidationModel extends AbstractReadOnlyModel<String> {
 
@@ -107,6 +110,8 @@ public class IndexPage extends AbstractPage {
     private SessionService sessionService;
     @Inject
     private UserService userService;
+    @Inject
+    private CallbackUrlSetter callbackUrlSetter;
 
     /**
      * Creates a new instance of <code>Index</code> page.
@@ -219,6 +224,13 @@ public class IndexPage extends AbstractPage {
 
         }));
         add(login, session);
+
+        synchronized (callbackUrlSetter) {
+            // set actual callback URL for a OAuthProvider and only once
+            if (!callbackUrlSetter.isCallbackUrlSet()) {
+                callbackUrlSetter.setCallbackUrl(getRequestCycle().getUrlRenderer().renderFullUrl(Url.parse(OAUTH_CLBK_FILTER_URL)));
+            }
+        }
     }
 
 }

@@ -22,6 +22,18 @@
         <slf4j.version>1.7.2</slf4j.version>
         <wicket.version>6.5.0</wicket.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>cloudbees</id>
+            <url>http://repository-lbogdanov.forge.cloudbees.com/release/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.apache.wicket</groupId>
@@ -84,7 +96,11 @@
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-web</artifactId>
             <version>${shiro.version}</version>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.buji</groupId>
+            <artifactId>buji-oauth</artifactId>
+            <version>1.1.1-custom</version>
         </dependency>
         <dependency>
             <groupId>org.avaje</groupId>
