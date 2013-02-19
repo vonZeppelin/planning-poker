@@ -16,6 +16,8 @@
 package org.lbogdanov.poker.web.oauth;
 
 import javax.inject.Inject;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.scribe.up.provider.OAuthProvider;
 
@@ -35,6 +37,15 @@ public class InjectableOAuthUserFilter extends OAuthUserFilter {
     @Override @Inject
     public void setProvider(OAuthProvider provider) {
         super.setProvider(provider);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        redirectToLogin(request, response);
+        return false;
     }
 
 }

@@ -11,6 +11,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
+import org.scribe.up.profile.google2.Google2Profile;
 
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.TxCallable;
@@ -76,24 +77,32 @@ public class UserServiceImpl implements UserService {
     }
 
     private static String toExternalId(PrincipalCollection principals) {
-        Object primary = principals.getPrimaryPrincipal();
-        if (primary instanceof String) { // ini realm
-            return new Sha256Hash(primary, "ini").toHex();
-        } else {
-            throw new UnsupportedOperationException("Unsupported realm");
+        Google2Profile googleProfile = principals.oneByType(Google2Profile.class);
+        if (googleProfile != null) { // Google OAuth realm
+            return new Sha256Hash(googleProfile.getId(), "google").toHex();
         }
+        String simpleProfile = principals.oneByType(String.class);
+        if (simpleProfile != null) { // Ini realm
+            return new Sha256Hash(simpleProfile, "ini").toHex();
+        }
+        throw new UnsupportedOperationException("Unsupported realm");
     }
 
     private static User initUser(PrincipalCollection principals) {
         User user = new User();
-        Object primary = principals.getPrimaryPrincipal();
-        if (primary instanceof String) { // ini realm
-            user.setFirstName((String) primary);
-            user.setExternalId(toExternalId(principals));
-        } else {
-            throw new UnsupportedOperationException("Unsupported realm");
+        user.setExternalId(toExternalId(principals));
+        Google2Profile googleProfile = principals.oneByType(Google2Profile.class);
+        if (googleProfile != null) { // Google OAuth realm
+            user.setFirstName(googleProfile.getFirstName());
+            user.setLastName(googleProfile.getFamilyName());
+            return user;
         }
-        return user;
+        String simpleProfile = principals.oneByType(String.class);
+        if (simpleProfile != null) { // Ini realm
+            user.setFirstName((String) simpleProfile);
+            return user;
+        }
+        throw new UnsupportedOperationException("Unsupported realm");
     }
 
 }
