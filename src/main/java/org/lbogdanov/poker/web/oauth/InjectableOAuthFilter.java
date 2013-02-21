@@ -16,6 +16,7 @@
 package org.lbogdanov.poker.web.oauth;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.scribe.up.provider.OAuthProvider;
 
@@ -28,6 +29,16 @@ import io.buji.oauth.OAuthFilter;
  * @author Leonid Bogdanov
  */
 public class InjectableOAuthFilter extends OAuthFilter {
+
+    public static final String FAILURE_URL_PARAM = "failureURL";
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override @Inject
+    public void setFailureUrl(@Named(FAILURE_URL_PARAM) String failureUrl) {
+        super.setFailureUrl(failureUrl);
+    }
 
     /**
      * {@inheritDoc}

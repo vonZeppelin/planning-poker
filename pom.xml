@@ -156,6 +156,7 @@
             </resource>
             <resource>
                 <directory>src/main/resources/${resources}</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
