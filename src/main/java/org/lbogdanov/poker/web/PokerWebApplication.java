@@ -25,6 +25,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.lbogdanov.poker.util.Settings;
 import org.lbogdanov.poker.web.page.IndexPage;
 import org.lbogdanov.poker.web.page.SessionPage;
@@ -82,6 +83,7 @@ public class PokerWebApplication extends WebApplication {
         if (!Settings.DEVELOPMENT_MODE.asBool().or(false)) {
             setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
         }
+        mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));
         mountPage("/session/${code}", SessionPage.class);
     }
 
