@@ -21,13 +21,14 @@ import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.lbogdanov.poker.core.Service;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.util.Settings;
 
 import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.TxCallable;
+import com.avaje.ebean.annotation.Transactional;
 
 
 /**
@@ -35,7 +36,7 @@ import com.avaje.ebean.TxCallable;
  * 
  * @author Leonid Bogdanov
  */
-@Singleton
+@Singleton @Service
 public class SessionServiceImpl implements SessionService {
 
     @Inject
@@ -47,56 +48,37 @@ public class SessionServiceImpl implements SessionService {
      * {@inheritDoc}
      */
     @Override
-    public boolean exists(final String code) {
-        return ebean.execute(new TxCallable<Boolean>() {
-
-            @Override
-            public Boolean call() {
-                return ebean.find(Session.class)
-                            .where()
-                            .eq("code", code)
-                            .findRowCount() != 0;
-            }
-
-        });
+    @Transactional(readOnly=true)
+    public boolean exists(String code) {
+        return ebean.find(Session.class)
+                    .where().eq("code", code)
+                    .findRowCount() != 0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Session find(final String code) {
-        return ebean.execute(new TxCallable<Session>() {
-
-            @Override
-            public Session call() {
-                return ebean.find(Session.class)
-                            .where()
-                            .eq("code", code)
-                            .findUnique();
-            }
-
-        });
+    @Transactional(readOnly=true)
+    public Session find(String code) {
+        return ebean.find(Session.class)
+                    .where().eq("code", code)
+                    .findUnique();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
+    @Transactional
     public Session create(final String name, final String description) {
-        return ebean.execute(new TxCallable<Session>() {
-
-            @Override
-            public Session call() {
-                Session session = new Session();
-                session.setName(name);
-                session.setDescription(description);
-                session.setCode(newCode(Settings.SESSION_CODE_LENGTH.asInt().or(10)));
-                session.setAuthor(userService.getCurrentUser());
-                ebean.save(session);
-                return session;
-            }
-
-        });
+        Session session = new Session();
+        session.setName(name);
+        session.setDescription(description);
+        session.setCode(newCode(Settings.SESSION_CODE_LENGTH.asInt().or(10)));
+        session.setAuthor(userService.getCurrentUser());
+        ebean.save(session);
+        return session;
     }
 
     /**

@@ -9,12 +9,13 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.lbogdanov.poker.core.Service;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
 import org.scribe.up.profile.google2.Google2Profile;
 
 import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.TxCallable;
+import com.avaje.ebean.annotation.Transactional;
 
 
 /**
@@ -22,7 +23,7 @@ import com.avaje.ebean.TxCallable;
  * 
  * @author Leonid Bogdanov
  */
-@Singleton
+@Singleton @Service
 public class UserServiceImpl implements UserService {
 
     private static final Object USER_KEY = "USER_KEY";
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getCurrentUser() {
-        final Subject subject = SecurityUtils.getSubject();
+        Subject subject = SecurityUtils.getSubject();
         if (subject.getPrincipal() == null) {
             return null;
         } else {
@@ -43,24 +44,7 @@ public class UserServiceImpl implements UserService {
             synchronized (session) {
                 User user = (User) session.getAttribute(USER_KEY);
                 if (user == null) {
-                    user = ebean.execute(new TxCallable<User>() {
-
-                        @Override
-                        @SuppressWarnings("hiding")
-                        public User call() {
-                            PrincipalCollection principals = subject.getPrincipals();
-                            User user = ebean.find(User.class)
-                                             .where()
-                                             .eq("externalId", toExternalId(principals))
-                                             .findUnique();
-                            if (user == null) {
-                                user = initUser(principals);
-                                ebean.save(user);
-                            }
-                            return user;
-                        }
-
-                    });
+                    user = findOrCreateUser(subject.getPrincipals());
                     session.setAttribute(USER_KEY, user);
                 }
                 return user;
@@ -74,6 +58,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void login(String username, String password, boolean rememberme) {
         SecurityUtils.getSubject().login(new UsernamePasswordToken(username, password, rememberme));
+    }
+
+    @Transactional
+    User findOrCreateUser(PrincipalCollection principals) {
+        User user = ebean.find(User.class)
+                         .where().eq("externalId", toExternalId(principals))
+                         .findUnique();
+        if (user == null) {
+            user = initUser(principals);
+            ebean.save(user);
+        }
+        return user;
     }
 
     private static String toExternalId(PrincipalCollection principals) {
@@ -99,7 +95,7 @@ public class UserServiceImpl implements UserService {
         }
         String simpleProfile = principals.oneByType(String.class);
         if (simpleProfile != null) { // Ini realm
-            user.setFirstName((String) simpleProfile);
+            user.setFirstName(simpleProfile);
             return user;
         }
         throw new UnsupportedOperationException("Unsupported realm");
