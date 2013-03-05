@@ -30,15 +30,15 @@
               <fieldset>
                 <legend><wicket:message key="login.internal.hint" /></legend>
                 <div class="control-group" wicket:id="usernameGroup">
-                  <label class="control-label" for="username"><wicket:message key="login.internal.username" /></label>
+                  <label class="control-label" wicket:for="username"><wicket:message key="login.internal.username" /></label>
                   <div class="controls">
-                    <input type="text" id="username" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
+                    <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
                   </div>
                 </div>
                 <div class="control-group" wicket:id="passwordGroup">
-                  <label class="control-label" for="password"><wicket:message key="login.internal.password" /></label>
+                  <label class="control-label" wicket:for="password"><wicket:message key="login.internal.password" /></label>
                   <div class="controls">
-                    <input type="password" id="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
+                    <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
                   </div>
                 </div>
                 <div class="control-group">
@@ -79,10 +79,10 @@
               <fieldset>
                 <legend><wicket:message key="session.join" /></legend>
                 <div class="control-group" wicket:id="codeGroup">
-                    <label class="control-label" for="code"><wicket:message key="session.join.code" /></label>
+                    <label class="control-label" wicket:for="code"><wicket:message key="session.join.code" /></label>
                     <div class="controls">
                       <div class="input-append">
-                        <input type="text" id="code" wicket:id="code" wicket:message="placeholder:session.join.code.hint" required>
+                        <input type="text" wicket:id="code" wicket:message="placeholder:session.join.code.hint" required>
                         <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.join.hint" /></button>
                     </div>
                   </div>
@@ -96,15 +96,15 @@
               <fieldset>
                 <legend><wicket:message key="session.create" /></legend>
                 <div class="control-group">
-                  <label class="control-label" for="name"><wicket:message key="session.create.name" /></label>
+                  <label class="control-label" wicket:for="name"><wicket:message key="session.create.name" /></label>
                   <div class="controls">
-                    <input type="text" id="name" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
+                    <input type="text" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
                   </div>
                 </div>
                 <div class="control-group">
-                  <label class="control-label" for="description"><wicket:message key="session.create.description" /></label>
+                  <label class="control-label" wicket:for="description"><wicket:message key="session.create.description" /></label>
                   <div class="controls">
-                    <textarea id="description" wicket:id="description" rows="4"></textarea>
+                    <textarea class="span5" wicket:id="description" rows="4"></textarea>
                   </div>
                 </div>
                 <button type="submit" class="btn btn-primary"><wicket:message key="session.create.hint" /></button>
