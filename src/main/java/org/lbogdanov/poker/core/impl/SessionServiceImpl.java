@@ -21,7 +21,6 @@ import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.lbogdanov.poker.core.Service;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
@@ -36,7 +35,7 @@ import com.avaje.ebean.annotation.Transactional;
  * 
  * @author Leonid Bogdanov
  */
-@Singleton @Service
+@Singleton
 public class SessionServiceImpl implements SessionService {
 
     @Inject

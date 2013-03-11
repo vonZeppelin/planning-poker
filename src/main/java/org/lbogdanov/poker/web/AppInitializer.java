@@ -25,8 +25,6 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.apache.shiro.config.IniFactorySupport;
 import org.apache.shiro.guice.web.ShiroWebModule;
 import org.apache.shiro.realm.text.IniRealm;
@@ -47,8 +45,8 @@ import org.scribe.up.provider.impl.Google2Provider;
 import org.scribe.up.provider.impl.Google2Provider.Google2Scope;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.avaje.ebean.*;
-import com.avaje.ebean.annotation.Transactional;
+import com.avaje.ebean.EbeanServer;
+import com.avaje.ebean.EbeanServerFactory;
 import com.avaje.ebean.config.DataSourceConfig;
 import com.avaje.ebean.config.ServerConfig;
 import com.google.common.base.Strings;
@@ -57,7 +55,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.google.inject.*;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
@@ -148,35 +145,7 @@ public class AppInitializer extends GuiceServletContextListener {
                 dbConfig.addClass(Session.class);
                 dbConfig.addClass(User.class);
 
-                final EbeanServer ebeanServer = EbeanServerFactory.create(dbConfig);
-                bindInterceptor(Matchers.annotatedWith(Service.class),
-                                Matchers.annotatedWith(Transactional.class),
-                                new MethodInterceptor() {
-
-                    @Override
-                    public Object invoke(final MethodInvocation method) throws Throwable {
-                        Transactional txnl = method.getMethod().getAnnotation(Transactional.class);
-                        TxScope scope = new TxScope(txnl.type()).setIsolation(txnl.isolation())
-                                                                .setReadOnly(txnl.readOnly())
-                                                                .setServerName(txnl.serverName())
-                                                                .setRollbackFor(txnl.rollbackFor())
-                                                                .setNoRollbackFor(txnl.noRollbackFor());
-                        return ebeanServer.execute(scope, new TxCallable<Object>() {
-
-                            @Override
-                            public Object call() {
-                                try {
-                                    return method.proceed();
-                                } catch (Throwable t) {
-                                    throw Throwables.propagate(t);
-                                }
-                            }
-
-                        });
-                    }
-
-                });
-                bind(EbeanServer.class).toInstance(ebeanServer);
+                bind(EbeanServer.class).toInstance(EbeanServerFactory.create(dbConfig));
                 bind(SessionService.class).to(SessionServiceImpl.class);
                 bind(UserService.class).to(UserServiceImpl.class);
                 bind(WebApplication.class).to(PokerWebApplication.class);

@@ -9,7 +9,6 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import org.lbogdanov.poker.core.Service;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
 import org.scribe.up.profile.google2.Google2Profile;
@@ -23,7 +22,7 @@ import com.avaje.ebean.annotation.Transactional;
  * 
  * @author Leonid Bogdanov
  */
-@Singleton @Service
+@Singleton
 public class UserServiceImpl implements UserService {
 
     private static final Object USER_KEY = "USER_KEY";
