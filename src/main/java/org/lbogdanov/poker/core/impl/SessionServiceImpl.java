@@ -47,7 +47,7 @@ public class SessionServiceImpl implements SessionService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public boolean exists(String code) {
         return ebean.find(Session.class)
                     .where().eq("code", code)
@@ -58,7 +58,7 @@ public class SessionServiceImpl implements SessionService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public Session find(String code) {
         return ebean.find(Session.class)
                     .where().eq("code", code)

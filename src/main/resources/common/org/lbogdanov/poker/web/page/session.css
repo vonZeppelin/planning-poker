@@ -1,0 +1,13 @@
+.tip {
+    border-bottom: 1px dotted #999999;
+    cursor: help;
+}
+
+hr {
+    margin: 10px 0px;
+}
+
+#chatLog {
+    height: 500px;
+    cursor: text;
+}

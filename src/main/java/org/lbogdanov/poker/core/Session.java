@@ -19,6 +19,8 @@ import static org.lbogdanov.poker.core.Constants.SESSION_CODE_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_DESCRIPTION_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
 
+import java.util.Date;
+
 import javax.persistence.*;
 
 import com.google.common.base.Objects;
@@ -30,17 +32,20 @@ import com.google.common.base.Objects;
  * @author Leonid Bogdanov
  */
 @Entity
-@Table(name="SESSIONS")
+@Table(name = "SESSIONS")
 public class Session extends AbstractEntity {
 
-    @Column(name="NAME", length=SESSION_NAME_MAX_LENGTH, nullable=false)
+    @Column(name = "NAME", length = SESSION_NAME_MAX_LENGTH, nullable = false)
     private String name = "";
-    @Column(name="CODE", length=SESSION_CODE_MAX_LENGTH, nullable=false, unique=true)
+    @Column(name = "CODE", length = SESSION_CODE_MAX_LENGTH, nullable = false, unique = true)
     private String code = "";
-    @Column(name="DESCRIPTION", length=SESSION_DESCRIPTION_MAX_LENGTH, nullable=true)
+    @Column(name = "CREATED", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created = new Date();
+    @Column(name = "DESCRIPTION", length = SESSION_DESCRIPTION_MAX_LENGTH, nullable = true)
     private String description = "";
-    @ManyToOne(optional=false)
-    @JoinColumn(name="AUTHOR_ID", nullable=false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "AUTHOR_ID", nullable = false)
     private User author;
 
     /**
@@ -62,7 +67,7 @@ public class Session extends AbstractEntity {
     }
 
     /**
-     *  Returns a session code.
+     * Returns a session code.
      * 
      * @return the session code
      */
@@ -78,7 +83,7 @@ public class Session extends AbstractEntity {
     }
 
     /**
-     *  Returns a session description.
+     * Returns a session description.
      * 
      * @return the session description
      */
@@ -96,7 +101,7 @@ public class Session extends AbstractEntity {
     }
 
     /**
-     *  Returns a session author (creator).
+     * Returns a session author (creator).
      * 
      * @return the session author (creator)
      */
@@ -111,6 +116,24 @@ public class Session extends AbstractEntity {
      */
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    /**
+     * Returns a session creation date.
+     * 
+     * @return the session creation date
+     */
+    public Date getCreated() {
+        return created;
+    }
+
+    /**
+     * Sets a session creation date.
+     * 
+     * @param date the session creation date
+     */
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     /**

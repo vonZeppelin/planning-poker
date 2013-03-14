@@ -15,9 +15,13 @@
  */
 package org.lbogdanov.poker.web;
 
+import java.util.Locale;
+
 import javax.inject.Singleton;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.wicket.ConverterLocator;
+import org.apache.wicket.IConverterLocator;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.core.request.mapper.CryptoMapper;
@@ -26,7 +30,9 @@ import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.PackageResourceReference;
-import org.lbogdanov.poker.util.Settings;
+import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.string.Strings;
+import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.web.page.IndexPage;
 import org.lbogdanov.poker.web.page.SessionPage;
 
@@ -69,6 +75,28 @@ public class PokerWebApplication extends WebApplication {
      * {@inheritDoc}
      */
     @Override
+    protected IConverterLocator newConverterLocator() {
+        ConverterLocator locator = (ConverterLocator) super.newConverterLocator();
+        locator.set(User.class, new IConverter<User>() {
+
+            @Override
+            public String convertToString(User value, Locale locale) {
+                return Strings.join(" ", value.getFirstName(), value.getLastName());
+            }
+
+            @Override
+            public User convertToObject(String value, Locale locale) {
+                throw new UnsupportedOperationException();
+            }
+
+        });
+        return locator;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void init() {
         super.init();
         new ShiroWicketPlugin() {
@@ -80,7 +108,7 @@ public class PokerWebApplication extends WebApplication {
             public void onLoginRequired() {}
 
         }.mountLoginPage(null, getHomePage()).install(this);
-        if (!Settings.DEVELOPMENT_MODE.asBool().or(false)) {
+        if (usesDeploymentConfig()) {
             setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
         }
         mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));

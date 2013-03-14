@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.jukito.JukitoRunner;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lbogdanov.poker.core.impl.SessionServiceImpl;
@@ -24,6 +25,7 @@ import com.avaje.ebean.TxCallable;
 /**
  * Tests for <code>SessionService</code> implementation.
  */
+@Ignore
 @RunWith(JukitoRunner.class)
 public class SessionServiceTest {
 

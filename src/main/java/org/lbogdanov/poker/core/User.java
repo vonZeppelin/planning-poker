@@ -32,14 +32,14 @@ import com.google.common.base.Objects;
  * @author Leonid Bogdanov
  */
 @Entity
-@Table(name="USERS")
+@Table(name = "USERS")
 public class User extends AbstractEntity {
 
-    @Column(name="FIRST_NAME", length=USER_FIRST_NAME_MAX_LENGTH, nullable=false)
+    @Column(name = "FIRST_NAME", length = USER_FIRST_NAME_MAX_LENGTH, nullable = false)
     private String firstName = "";
-    @Column(name="LAST_NAME", length=USER_LAST_NAME_MAX_LENGTH, nullable=true)
+    @Column(name = "LAST_NAME", length = USER_LAST_NAME_MAX_LENGTH, nullable = true)
     private String lastName = "";
-    @Column(name="EXTERNAL_ID", length=USER_EXTERNAL_ID_MAX_LENGTH, nullable=false, unique=true)
+    @Column(name = "EXTERNAL_ID", length = USER_EXTERNAL_ID_MAX_LENGTH, nullable = false, unique = true)
     private String externalId = "";
 
     /**

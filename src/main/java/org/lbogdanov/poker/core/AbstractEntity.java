@@ -32,7 +32,7 @@ public abstract class AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ID", nullable=false, unique=true)
+    @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 
     /**

@@ -1,3 +1,49 @@
 <wicket:extend>
-
+  <br>
+  <div class="row">
+    <div class="span8">
+      <div class="row">
+        <div class="well well-small">
+          <h4><wicket:message key="session.info" /></h4>
+          <hr>
+          <div class="row">
+            <div class="span4">
+              <span class="label label-info"><wicket:message key="session.name" /></span> <span wicket:id="session.name" data-placement="right"></span><br>
+              <span class="label label-info"><wicket:message key="session.author" /></span> <span wicket:id="session.author"></span>
+            </div>
+            <div class="span4">
+              <span class="label label-info"><wicket:message key="session.code" /></span> <span wicket:id="session.code"></span><br>
+              <span class="label label-info"><wicket:message key="session.created" /></span> <span wicket:id="session.created"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span8">
+          &nbsp;
+        </div>
+      </div>
+    </div>
+    <div class="span4">
+      <div class="row">
+        <div class="span4">
+          <span id="chatLog" class="span4 uneditable-input"></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span4">
+          <form>
+            <fieldset>
+              <div class="control-group">
+                <div class="controls controls-row">
+                  <textarea class="span3"></textarea>
+                  <button class="span1 btn btn-large" type="button"><i class="icon-comment"></i></button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </wicket:extend>

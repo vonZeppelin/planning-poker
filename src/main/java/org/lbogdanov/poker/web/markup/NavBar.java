@@ -21,7 +21,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.util.string.Strings;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
 
@@ -52,16 +51,15 @@ public class NavBar extends Panel { // TODO Remove this class?
             }
 
         };
-        Label username = new Label("username", new AbstractReadOnlyModel<String>() {
+        Label username = new BodylessLabel("username", new AbstractReadOnlyModel<User>() {
 
             @Override
-            public String getObject() {
-                User user = userService.getCurrentUser();
-                return Strings.join(" ", user.getFirstName(), user.getLastName());
+            public User getObject() {
+                return userService.getCurrentUser();
             }
 
         });
-        userMenu.add(username.setRenderBodyOnly(true), new LogoutLink("logout"));
+        userMenu.add(username, new LogoutLink("logout"));
         add(userMenu);
     }
 
