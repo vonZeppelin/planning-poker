@@ -15,12 +15,19 @@
  */
 package org.lbogdanov.poker.web.page;
 
+import java.util.Collections;
+
 import org.apache.wicket.bootstrap.Bootstrap;
+import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.JavaScriptResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.lbogdanov.poker.web.markup.NavBar;
+import org.lbogdanov.poker.web.plugin.I18nPlugin;
 
 
 /**
@@ -29,6 +36,16 @@ import org.lbogdanov.poker.web.markup.NavBar;
  * @author Leonid Bogdanov
  */
 abstract class AbstractPage extends WebPage {
+
+    protected final ResourceReference I18N = new JavaScriptResourceReference(AbstractPage.class, "i18n.js",
+                                                                             getLocale(), null, null) {
+
+            @Override
+            public Iterable<? extends HeaderItem> getDependencies() {
+                return Collections.singletonList(JavaScriptHeaderItem.forReference(I18nPlugin.get()));
+            }
+
+    };
 
     private NavBar navBar;
 

@@ -9,5 +9,10 @@ hr {
 
 #chatLog {
     height: 500px;
+    overflow: auto;
     cursor: text;
+}
+
+#chatLog div.error {
+    color: red;
 }

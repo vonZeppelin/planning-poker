@@ -26,7 +26,7 @@
         <div wicket:id="login" class="active item">
           <h3 class="text-info"><wicket:message key="login.title" /></h3>
           <div class="span6">
-            <form wicket:id="internal">
+            <form wicket:id="internal" method="post">
               <fieldset>
                 <legend><wicket:message key="login.internal.hint" /></legend>
                 <div class="control-group" wicket:id="usernameGroup">
@@ -75,7 +75,7 @@
         <div wicket:id="session" class="item">
           <h3 class="text-info"><wicket:message key="session.title" /></h3>
           <div class="span6">
-            <form wicket:id="join">
+            <form wicket:id="join" method="get">
               <fieldset>
                 <legend><wicket:message key="session.join" /></legend>
                 <div class="control-group" wicket:id="codeGroup">
@@ -92,7 +92,7 @@
             </form>
           </div>
           <div class="span6">
-            <form wicket:id="create">
+            <form wicket:id="create" method="post">
               <fieldset>
                 <legend><wicket:message key="session.create" /></legend>
                 <div class="control-group">

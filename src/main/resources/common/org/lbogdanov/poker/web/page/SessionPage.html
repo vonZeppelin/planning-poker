@@ -32,12 +32,12 @@
       </div>
       <div class="row">
         <div class="span4">
-          <form>
+          <form id="chatForm" wicket:id="chatForm" method="post">
             <fieldset>
               <div class="control-group">
                 <div class="controls controls-row">
-                  <textarea class="span3"></textarea>
-                  <button class="span1 btn btn-large" type="button"><i class="icon-comment"></i></button>
+                  <textarea id="chatMsg" wicket:id="chatMsg" class="span3" rows="3"></textarea>
+                  <button id="chatSend" wicket:id="chatSend" class="span1 btn btn-large" type="submit"><i class="icon-comment"></i></button>
                 </div>
               </div>
             </fieldset>
