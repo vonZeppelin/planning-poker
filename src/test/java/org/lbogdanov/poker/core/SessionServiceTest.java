@@ -71,8 +71,8 @@ public class SessionServiceTest {
     @Test
     public void testCreate() {
         String regex = "\\w{10}";
-        Session session1 = sessionService.create("Session1", "");
-        Session session2 = sessionService.create("Session2", "");
+        Session session1 = sessionService.create("Session1", "", "");
+        Session session2 = sessionService.create("Session2", "", "");
         assertNotEquals(session1.getCode(), session2.getCode());
         assertTrue(session1.getCode().matches(regex));
         assertTrue(session2.getCode().matches(regex));

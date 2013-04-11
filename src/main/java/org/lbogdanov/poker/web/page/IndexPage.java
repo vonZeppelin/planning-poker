@@ -17,14 +17,18 @@ package org.lbogdanov.poker.web.page;
 
 import static org.apache.wicket.AttributeModifier.append;
 import static org.apache.wicket.validation.validator.StringValidator.maximumLength;
-import static org.lbogdanov.poker.core.Constants.SESSION_CODE_MAX_LENGTH;
-import static org.lbogdanov.poker.core.Constants.SESSION_DESCRIPTION_MAX_LENGTH;
-import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.*;
+
+import java.util.Collections;
 
 import javax.inject.Inject;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.bootstrap.Bootstrap;
+import org.apache.wicket.markup.head.HeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
@@ -32,17 +36,19 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ResourceReference;
+import org.apache.wicket.resource.JQueryPluginResourceReference;
 import org.apache.wicket.util.LazyInitializer;
 import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
-import org.lbogdanov.poker.core.Session;
-import org.lbogdanov.poker.core.SessionService;
-import org.lbogdanov.poker.core.UserService;
+import org.lbogdanov.poker.core.*;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
 
 
 /**
@@ -71,6 +77,7 @@ public class IndexPage extends AbstractPage {
         private String code;
         private String name;
         private String description;
+        private String estimates;
 
     }
 
@@ -102,6 +109,15 @@ public class IndexPage extends AbstractPage {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexPage.class);
+    private static final ResourceReference JS = new JQueryPluginResourceReference(SessionPage.class, "index.js") {
+
+        @Override
+        public Iterable<? extends HeaderItem> getDependencies() {
+            return Iterables.concat(super.getDependencies(),
+                                    Collections.singletonList(JavaScriptHeaderItem.forReference(Bootstrap.plain())));
+        }
+
+    };
 
     @Inject
     private SessionService sessionService;
@@ -193,20 +209,40 @@ public class IndexPage extends AbstractPage {
             }
 
         });
-        Form<?> create = new Form<Game>("create", gameModel) {
+        Form<?> create = new Form<Game>("create", gameModel);
+        IValidator<String> estimatesValidator = new IValidator<String>() {
 
             @Override
-            @SuppressWarnings("hiding")
-            protected void onSubmit() {
-                Game game = getModelObject();
-                Session session = sessionService.create(game.name, game.description);
-                setResponsePage(SessionPage.class, new PageParameters().add("code", session.getCode()));
+            public void validate(IValidatable<String> validatable) {
+                try {
+                    Duration.parse(validatable.getValue());
+                } catch (IllegalArgumentException e) {
+                    validatable.error(new ValidationError(IndexPage.this.getString("session.create.estimates.invalidEstimates")));
+                }
             }
 
         };
         create.add(new BootstrapFeedbackPanel("feedback"),
                    new RequiredTextField<String>("name").add(maximumLength(SESSION_NAME_MAX_LENGTH)),
-                   new TextArea<String>("description").add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH)));
+                   new TextArea<String>("description").add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH)),
+                   new RequiredTextField<String>("estimates").add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator),
+                   new AjaxFallbackButton("submit", create) {
+
+            @Override
+            public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                Game game = (Game) form.getModelObject();
+                Session session = sessionService.create(game.name, game.description, game.estimates);
+                setResponsePage(SessionPage.class, new PageParameters().add("code", session.getCode()));
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                if (target != null) {
+                    target.add(form);
+                }
+            }
+
+        });
 
         login.add(internal.setOutputMarkupId(true));
         session.add(join.setOutputMarkupId(true), create);
@@ -219,6 +255,15 @@ public class IndexPage extends AbstractPage {
 
         }));
         add(login, session);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(JavaScriptHeaderItem.forReference(JS));
     }
 
 }

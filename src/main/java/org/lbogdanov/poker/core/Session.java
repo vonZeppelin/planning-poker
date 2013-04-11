@@ -18,10 +18,17 @@ package org.lbogdanov.poker.core;
 import static org.lbogdanov.poker.core.Constants.SESSION_CODE_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_DESCRIPTION_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.SESSION_ESTIMATES_MAX_LENGTH;
 
 import java.util.Date;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.google.common.base.Objects;
 
@@ -47,6 +54,8 @@ public class Session extends AbstractEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "AUTHOR_ID", nullable = false)
     private User author;
+    @Column(name = "ESTIMATES", length = SESSION_ESTIMATES_MAX_LENGTH, nullable = false)
+    private String estimates;
 
     /**
      * Returns a session name.
@@ -134,6 +143,24 @@ public class Session extends AbstractEntity {
      */
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    /**
+     * Returns a session estimates.
+     * 
+     * @return the estimates
+     */
+    public String getEstimates() {
+        return estimates;
+    }
+
+    /**
+     * Sets a session estimates.
+     * 
+     * @param estimates the estimates to set
+     */
+    public void setEstimates(String estimates) {
+        this.estimates = estimates;
     }
 
     /**

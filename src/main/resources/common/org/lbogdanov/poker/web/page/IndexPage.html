@@ -91,6 +91,24 @@
               <span wicket:id="feedback"></span>
             </form>
           </div>
+          <div id="estimatesEditor" class="modal hide fade" role="dialog">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h3><wicket:message key="session.estimatesEditor.header" /></h3>
+            </div>
+            <div class="modal-body">
+              <p><wicket:message key="session.estimatesEditor.help" /></p>
+              <select id="predefinedEstimates">
+                <option value="0m 30m 1h 2h 3h 5h 8h 13h 20h 40h 100h"><wicket:message key="session.estimatesEditor.standard" /></option>
+                <option value="1h 2h 3h 5h 1d 13h 2d 21h 3d 34h 40h"><wicket:message key="session.estimatesEditor.fibonacci" /></option>
+              </select>
+              <input type="text" class="input-xlarge" id="customEstimates">
+             </div>
+             <div class="modal-footer">
+               <button type="button" class="btn" data-dismiss="modal"><wicket:message key="session.estimatesEditor.cancel" /></button>
+               <button type="button" id="estimatesSubmit" class="btn btn-primary"><wicket:message key="session.estimatesEditor.ok" /></button>
+             </div>
+          </div>
           <div class="span6">
             <form wicket:id="create" method="post">
               <fieldset>
@@ -102,12 +120,25 @@
                   </div>
                 </div>
                 <div class="control-group">
+                  <label class="control-label" wicket:for="estimates"><wicket:message key="session.create.estimates" /></label>
+                  <div class="controls">
+                    <div class="input-append">
+                      <input type="text" class="span4" id="estimates" wicket:id="estimates" readonly required>
+                      <button class="btn" href="#estimatesEditor" data-toggle="modal"><i class="icon-pencil"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="control-group">
                   <label class="control-label" wicket:for="description"><wicket:message key="session.create.description" /></label>
                   <div class="controls">
                     <textarea class="span5" wicket:id="description" rows="4"></textarea>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><wicket:message key="session.create.hint" /></button>
+                <div class="control-group">
+                  <div class="controls">
+                    <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.create.hint" /></button>
+                  </div>
+                </div>
               </fieldset>
               <span wicket:id="feedback"></span>
             </form>

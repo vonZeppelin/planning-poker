@@ -27,6 +27,7 @@ public final class Constants {
     public static final int SESSION_CODE_MAX_LENGTH = 32;
     public static final int SESSION_NAME_MAX_LENGTH = 128;
     public static final int SESSION_DESCRIPTION_MAX_LENGTH = 4096;
+    public static final int SESSION_ESTIMATES_MAX_LENGTH = 1024;
     public static final int USER_FIRST_NAME_MAX_LENGTH = 128;
     public static final int USER_LAST_NAME_MAX_LENGTH = 128;
     public static final int USER_EXTERNAL_ID_MAX_LENGTH = 64;
