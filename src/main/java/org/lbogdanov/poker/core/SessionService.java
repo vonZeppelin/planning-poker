@@ -44,8 +44,9 @@ public interface SessionService {
      * 
      * @param name the session name
      * @param description the session description
+     * @param estimates the session estimates
      * @return a newly created <code>Session</code> object
      */
-    public Session create(String name, String description);
+    public Session create(String name, String description, String estimates);
 
 }

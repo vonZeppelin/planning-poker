@@ -70,10 +70,11 @@ public class SessionServiceImpl implements SessionService {
      */
     @Override
     @Transactional
-    public Session create(final String name, final String description) {
+    public Session create(final String name, final String description, final String estimations) {
         Session session = new Session();
         session.setName(name);
         session.setDescription(description);
+        session.setEstimates(estimations);
         session.setCode(newCode(Settings.SESSION_CODE_LENGTH.asInt().or(10)));
         session.setAuthor(userService.getCurrentUser());
         ebean.save(session);
