@@ -15,6 +15,9 @@
  */
 package org.lbogdanov.poker.core.impl;
 
+import static org.lbogdanov.poker.core.Constants.SESSION_CODE_DEFAULT_LENGTH;
+import static org.lbogdanov.poker.util.Settings.SESSION_CODE_LENGTH;
+
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -24,7 +27,6 @@ import javax.inject.Singleton;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
-import org.lbogdanov.poker.util.Settings;
 
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.annotation.Transactional;
@@ -70,12 +72,12 @@ public class SessionServiceImpl implements SessionService {
      */
     @Override
     @Transactional
-    public Session create(final String name, final String description, final String estimations) {
+    public Session create(String name, String description, String estimations) {
         Session session = new Session();
         session.setName(name);
         session.setDescription(description);
         session.setEstimates(estimations);
-        session.setCode(newCode(Settings.SESSION_CODE_LENGTH.asInt().or(10)));
+        session.setCode(newCode(SESSION_CODE_LENGTH.asInt().or(SESSION_CODE_DEFAULT_LENGTH)));
         session.setAuthor(userService.getCurrentUser());
         ebean.save(session);
         return session;

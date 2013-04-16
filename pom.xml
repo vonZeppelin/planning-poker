@@ -270,9 +270,6 @@
                                     <goal>jslint</goal>
                                     <goal>compress</goal>
                                 </goals>
-                                <configuration>
-                                    <failOnWarning>true</failOnWarning>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

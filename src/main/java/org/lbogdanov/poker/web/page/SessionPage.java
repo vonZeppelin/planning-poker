@@ -16,7 +16,6 @@
 package org.lbogdanov.poker.web.page;
 
 import java.text.DateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +30,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.bootstrap.Bootstrap;
 import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Form;
@@ -43,7 +40,6 @@ import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.resource.JQueryPluginResourceReference;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.web.markup.BodylessLabel;
@@ -66,15 +62,7 @@ public class SessionPage extends AbstractPage {
 
     private static final int LABEL_MAX_LENGTH = 32;
     private static final ResourceReference CSS = new CssResourceReference(SessionPage.class, "session.css");
-    private static final ResourceReference JS = new JQueryPluginResourceReference(SessionPage.class, "session.js") {
-
-        @Override
-        public Iterable<? extends HeaderItem> getDependencies() {
-            return Iterables.concat(super.getDependencies(),
-                                    Collections.singletonList(JavaScriptHeaderItem.forReference(Bootstrap.plain())));
-        }
-
-    };
+    private static final ResourceReference JS = new PageScriptResourceReference(SessionPage.class, "session.js");
 
     @Inject
     private SessionService sessionService;

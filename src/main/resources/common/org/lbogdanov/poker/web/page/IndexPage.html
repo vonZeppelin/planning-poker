@@ -91,40 +91,22 @@
               <span wicket:id="feedback"></span>
             </form>
           </div>
-          <div id="estimatesEditor" class="modal hide fade" role="dialog">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h3><wicket:message key="session.estimatesEditor.header" /></h3>
-            </div>
-            <div class="modal-body">
-              <p><wicket:message key="session.estimatesEditor.help" /></p>
-              <select id="predefinedEstimates">
-                <option value="0m 30m 1h 2h 3h 5h 8h 13h 20h 40h 100h"><wicket:message key="session.estimatesEditor.standard" /></option>
-                <option value="1h 2h 3h 5h 1d 13h 2d 21h 3d 34h 40h"><wicket:message key="session.estimatesEditor.fibonacci" /></option>
-              </select>
-              <input type="text" class="input-xlarge" id="customEstimates">
-             </div>
-             <div class="modal-footer">
-               <button type="button" class="btn" data-dismiss="modal"><wicket:message key="session.estimatesEditor.cancel" /></button>
-               <button type="button" id="estimatesSubmit" class="btn btn-primary"><wicket:message key="session.estimatesEditor.ok" /></button>
-             </div>
-          </div>
           <div class="span6">
             <form wicket:id="create" method="post">
               <fieldset>
                 <legend><wicket:message key="session.create" /></legend>
-                <div class="control-group">
+                <div class="control-group" wicket:id="nameGroup">
                   <label class="control-label" wicket:for="name"><wicket:message key="session.create.name" /></label>
                   <div class="controls">
                     <input type="text" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
                   </div>
                 </div>
-                <div class="control-group">
+                <div class="control-group" wicket:id="estimatesGroup">
                   <label class="control-label" wicket:for="estimates"><wicket:message key="session.create.estimates" /></label>
                   <div class="controls">
                     <div class="input-append">
                       <input type="text" class="span4" id="estimates" wicket:id="estimates" readonly required>
-                      <button class="btn" href="#estimatesEditor" data-toggle="modal"><i class="icon-pencil"></i></button>
+                      <button class="btn" data-target="#estimatesEditor" data-toggle="modal"><i class="icon-edit"></i></button>
                     </div>
                   </div>
                 </div>
@@ -145,6 +127,38 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div id="estimatesEditor" class="modal hide fade" role="dialog">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h3><wicket:message key="session.estimatesEditor.header" /></h3>
+    </div>
+    <div class="modal-body" style="overflow-y: visible;">
+      <p><wicket:message key="session.estimatesEditor.help" /></p>
+      <p>
+        <div class="input-append">
+          <input id="customEstimates" class="span5" type="text">
+          <div class="btn-group">
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+              <wicket:message key="session.estimatesEditor.presets" />
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right" role="menu">
+              <li>
+                <a>0m 30m 1h 2h 3h 5h 8h 13h 20h 40h 100h</a>
+              </li>
+              <li>
+                <a>1h 2h 3h 5h 1d 13h 2d 21h 3d 34h 40h</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal"><wicket:message key="session.estimatesEditor.cancel" /></button>
+      <button id="estimatesSubmit" class="btn btn-primary"><wicket:message key="session.estimatesEditor.ok" /></button>
     </div>
   </div>
 </wicket:extend>

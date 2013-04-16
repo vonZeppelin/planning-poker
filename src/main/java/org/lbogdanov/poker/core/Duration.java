@@ -1,6 +1,20 @@
+/**
+ * Copyright 2012 Leonid Bogdanov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.lbogdanov.poker.core;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -9,12 +23,13 @@ import java.util.regex.Pattern;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
+
 /**
- * Represents time duration stored as a number of minutes.
+ * Represents a time interval stored as a number of minutes, is used to represent an estimate in a Planning Poker game.
  * 
  * @author Alexandra Fomina
  */
-public class Duration implements Serializable, Comparable<Duration> {
+public class Duration implements Comparable<Duration> {
 
     private static final int MINUTES_PER_HOUR = 60;
     private static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 8;
@@ -71,27 +86,38 @@ public class Duration implements Serializable, Comparable<Duration> {
         return duration;
     }
 
-    public Duration() {}
-
     /**
-     * @param minutes
+     * Creates a zero valued <code>Duration</code> instance.
      */
-    public Duration(int minutes) {
-        this.minutes = minutes;
+    public Duration() {
+        this(0);
     }
 
     /**
-     * @return the minutes
+     * Creates a <code>Duration</code> instance with a specified number of minutes.
+     * 
+     * @param minutes the initial number of minutes, must be non-negative
+     */
+    public Duration(int minutes) {
+        setMinutes(minutes);
+    }
+
+    /**
+     * Returns a number of minutes in this time interval.
+     * 
+     * @return the minutes the number of minutes
      */
     public int getMinutes() {
         return minutes;
     }
 
     /**
-     * @param minutes the minutes to set
+     * Sets a number of minutes that this time interval has.
+     * 
+     * @param minutes the number of minutes, must be non-negative
      */
     public void setMinutes(int minutes) {
-        Preconditions.checkArgument(minutes >= 0, "Argument must be non-negative");
+        Preconditions.checkArgument(minutes >= 0, "Value must be non-negative");
         this.minutes = minutes;
     }
 
