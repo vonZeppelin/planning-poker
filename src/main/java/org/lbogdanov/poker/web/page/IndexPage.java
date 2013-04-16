@@ -223,8 +223,7 @@ public class IndexPage extends AbstractPage {
         create.add(new BootstrapFeedbackPanel("feedback"),
                    new RequiredTextField<String>("name").add(maximumLength(SESSION_NAME_MAX_LENGTH)),
                    new TextArea<String>("description").add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH)),
-                   new RequiredTextField<String>("estimates", Model.of("0m 30m 1h 2h 3h 5h 8h 13h 20h 40h 100h")).
-                       add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator),
+                   new RequiredTextField<String>("estimates").add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator),
                    new AjaxFallbackButton("submit", create) {
 
             @Override
