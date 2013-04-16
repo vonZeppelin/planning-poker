@@ -16,9 +16,9 @@ import com.google.common.primitives.Ints;
  */
 public class Duration implements Serializable, Comparable<Duration> {
 
-    private static final int MINUTES_PER_HOUR = 60;
-    private static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 8;
-    private static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 5;
+    static final int MINUTES_PER_HOUR = 60;
+    static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 8;
+    static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 5;
 
     private int minutes;
 
@@ -48,11 +48,15 @@ public class Duration implements Serializable, Comparable<Duration> {
      * 
      * @param input a string to parse
      * @return the duration
+     * @throws IllegalArgumentException if the given <code>String</code> doesn't matches syntax
      */
     public static Duration parseSingle(String input) {
         Duration duration = new Duration();
         Pattern pattern = Pattern.compile("(\\d+)([mhdw])");
         Matcher matcher = pattern.matcher(input);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Incorrect input");
+        }
         int n = Integer.parseInt(matcher.group(1));
         switch (matcher.group(2).charAt(0)) {
             case 'm':
@@ -77,7 +81,7 @@ public class Duration implements Serializable, Comparable<Duration> {
      * @param minutes
      */
     public Duration(int minutes) {
-        this.minutes = minutes;
+        this.setMinutes(minutes);
     }
 
     /**
@@ -100,16 +104,26 @@ public class Duration implements Serializable, Comparable<Duration> {
      */
     @Override
     public String toString() {
-        if (minutes % MINUTES_PER_WEEK == 0) {
-            return String.format("%dw", minutes / MINUTES_PER_WEEK);
+        StringBuilder duration = new StringBuilder();
+        int n = minutes;
+        if (n >= MINUTES_PER_WEEK) {
+            duration.append(n / MINUTES_PER_WEEK).append("w ");
+            n = n % MINUTES_PER_WEEK;
         }
-        if (minutes % MINUTES_PER_DAY == 0) {
-            return String.format("%dd", minutes / MINUTES_PER_DAY);
+        if (n >= MINUTES_PER_DAY) {
+            duration.append(n / MINUTES_PER_DAY).append("d ");
+            n = n % MINUTES_PER_DAY;
         }
-        if (minutes % MINUTES_PER_HOUR == 0) {
-            return String.format("%dh", minutes / MINUTES_PER_HOUR);
+        if (n >= MINUTES_PER_HOUR) {
+            duration.append(n / MINUTES_PER_HOUR).append("h ");
+            n = n % MINUTES_PER_HOUR;
         }
-        return String.format("%dm", minutes);
+        if (n > 0) {
+            duration.append(n).append('m');
+        } else if (duration.length() == 0){
+            duration.append(0);
+        }
+        return duration.toString().trim();
     }
 
     /**
@@ -118,6 +132,28 @@ public class Duration implements Serializable, Comparable<Duration> {
     @Override
     public int compareTo(Duration that) {
         return Ints.compare(this.minutes, that.minutes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof Duration) {
+            return this.getMinutes() == ((Duration) other).getMinutes();
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getMinutes();
     }
 
 }

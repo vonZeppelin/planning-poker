@@ -98,11 +98,14 @@
             </div>
             <div class="modal-body">
               <p><wicket:message key="session.estimatesEditor.help" /></p>
-              <select id="predefinedEstimates">
-                <option value="0m 30m 1h 2h 3h 5h 8h 13h 20h 40h 100h"><wicket:message key="session.estimatesEditor.standard" /></option>
-                <option value="1h 2h 3h 5h 1d 13h 2d 21h 3d 34h 40h"><wicket:message key="session.estimatesEditor.fibonacci" /></option>
-              </select>
-              <input type="text" class="input-xlarge" id="customEstimates">
+              <div class="input-append btn-group">
+                <input type="text" class="span4" id="customEstimates">
+                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" data-target="#"><span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li class="span4"><a id="standard" href="#"><wicket:message key="session.estimatesEditor.standard" /></a></li>
+                  <li class="span4"><a id="fib" href="#"><wicket:message key="session.estimatesEditor.fibonacci" /></a></li>
+                </ul>
+              </div>
              </div>
              <div class="modal-footer">
                <button type="button" class="btn" data-dismiss="modal"><wicket:message key="session.estimatesEditor.cancel" /></button>
@@ -124,7 +127,7 @@
                   <div class="controls">
                     <div class="input-append">
                       <input type="text" class="span4" id="estimates" wicket:id="estimates" readonly required>
-                      <button class="btn" href="#estimatesEditor" data-toggle="modal"><i class="icon-pencil"></i></button>
+                      <button class="btn" data-target="#estimatesEditor" data-toggle="modal"><i class="icon-pencil"></i></button>
                     </div>
                   </div>
                 </div>

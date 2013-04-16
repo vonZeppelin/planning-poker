@@ -26,16 +26,13 @@ import javax.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.bootstrap.Bootstrap;
-import org.apache.wicket.markup.head.HeaderItem;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.*;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
-import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.*;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.JQueryPluginResourceReference;
 import org.apache.wicket.util.LazyInitializer;
@@ -109,7 +106,8 @@ public class IndexPage extends AbstractPage {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexPage.class);
-    private static final ResourceReference JS = new JQueryPluginResourceReference(SessionPage.class, "index.js") {
+    private static final ResourceReference CSS = new CssResourceReference(IndexPage.class, "index.css");
+    private static final ResourceReference JS = new JQueryPluginResourceReference(IndexPage.class, "index.js") {
 
         @Override
         public Iterable<? extends HeaderItem> getDependencies() {
@@ -225,7 +223,8 @@ public class IndexPage extends AbstractPage {
         create.add(new BootstrapFeedbackPanel("feedback"),
                    new RequiredTextField<String>("name").add(maximumLength(SESSION_NAME_MAX_LENGTH)),
                    new TextArea<String>("description").add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH)),
-                   new RequiredTextField<String>("estimates").add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator),
+                   new RequiredTextField<String>("estimates", Model.of("0m 30m 1h 2h 3h 5h 8h 13h 20h 40h 100h")).
+                       add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator),
                    new AjaxFallbackButton("submit", create) {
 
             @Override
@@ -263,6 +262,7 @@ public class IndexPage extends AbstractPage {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
+        response.render(CssHeaderItem.forReference(CSS));
         response.render(JavaScriptHeaderItem.forReference(JS));
     }
 
