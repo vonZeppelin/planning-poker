@@ -17,9 +17,8 @@ package org.lbogdanov.poker.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
@@ -31,9 +30,9 @@ import com.google.common.primitives.Ints;
  */
 public class Duration implements Comparable<Duration> {
 
-    private static final int MINUTES_PER_HOUR = 60;
-    private static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 8;
-    private static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 5;
+    static final int MINUTES_PER_HOUR = 60;
+    static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 8;
+    static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 5;
 
     private int minutes;
 
@@ -48,42 +47,40 @@ public class Duration implements Comparable<Duration> {
      * @throws IllegalArgumentException if the given <code>String</code> doesn't matches syntax
      */
     public static List<Duration> parse(String input) {
-        if (!Pattern.matches("(\\d+[mhdw]\\s*[\\s,;]?\\s*)*", input)) {
-            throw new IllegalArgumentException("Incorrect input");
-        }
         List<Duration> durations = new ArrayList<Duration>();
-        for (String d : input.split("\\s*[\\s,;]\\s*")) {
-            durations.add(parseSingle(d));
+        StringBuilder duration = new StringBuilder();
+        for (char chr : input.toCharArray()) {
+            if (Character.isWhitespace(chr) || chr == ',' || chr == ';') {
+                continue;
+            }
+            if (Character.isDigit(chr)) {
+                duration.append(chr);
+            } else {
+                int mul;
+                switch (chr) {
+                    case 'm':
+                        mul = 1;
+                        break;
+                    case 'h':
+                        mul = MINUTES_PER_HOUR;
+                        break;
+                    case 'd':
+                        mul = MINUTES_PER_DAY;
+                        break;
+                    case 'w':
+                        mul = MINUTES_PER_WEEK;
+                        break;
+                   default:
+                       throw new IllegalArgumentException(duration.toString() + chr);
+                }
+                durations.add(new Duration(Integer.parseInt(duration.toString()) * mul));
+                duration.setLength(0);
+            }
+        }
+        if (duration.length() > 0) {
+            throw new IllegalArgumentException(duration.toString());
         }
         return durations;
-    }
-
-    /**
-     * Parses the given <code>String</code> to a single <code>Duration</code> object.
-     * 
-     * @param input a string to parse
-     * @return the duration
-     */
-    public static Duration parseSingle(String input) {
-        Duration duration = new Duration();
-        Pattern pattern = Pattern.compile("(\\d+)([mhdw])");
-        Matcher matcher = pattern.matcher(input);
-        int n = Integer.parseInt(matcher.group(1));
-        switch (matcher.group(2).charAt(0)) {
-            case 'm':
-                break;
-            case 'h':
-                n *= MINUTES_PER_HOUR;
-                break;
-            case 'd':
-                n *= MINUTES_PER_DAY;
-                break;
-            case 'w':
-                n *= MINUTES_PER_WEEK;
-                break;
-        }
-        duration.setMinutes(n);
-        return duration;
     }
 
     /**
@@ -126,16 +123,27 @@ public class Duration implements Comparable<Duration> {
      */
     @Override
     public String toString() {
-        if (minutes % MINUTES_PER_WEEK == 0) {
-            return String.format("%dw", minutes / MINUTES_PER_WEEK);
+        int n = minutes;
+        if (n == 0) {
+            return "0";
         }
-        if (minutes % MINUTES_PER_DAY == 0) {
-            return String.format("%dd", minutes / MINUTES_PER_DAY);
+        List<String> duration = new ArrayList<String>(4);
+        if (n >= MINUTES_PER_WEEK) {
+            duration.add((n / MINUTES_PER_WEEK) + "w");
+            n %= MINUTES_PER_WEEK;
         }
-        if (minutes % MINUTES_PER_HOUR == 0) {
-            return String.format("%dh", minutes / MINUTES_PER_HOUR);
+        if (n >= MINUTES_PER_DAY) {
+            duration.add((n / MINUTES_PER_DAY) + "d");
+            n %= MINUTES_PER_DAY;
         }
-        return String.format("%dm", minutes);
+        if (n >= MINUTES_PER_HOUR) {
+            duration.add((n / MINUTES_PER_HOUR) + "h");
+            n %= MINUTES_PER_HOUR;
+        }
+        if (n > 0) {
+            duration.add(n + "m");
+        }
+        return Joiner.on(' ').join(duration);
     }
 
     /**
@@ -144,6 +152,28 @@ public class Duration implements Comparable<Duration> {
     @Override
     public int compareTo(Duration that) {
         return Ints.compare(this.minutes, that.minutes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof Duration) {
+            return this.getMinutes() == ((Duration) other).getMinutes();
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getMinutes();
     }
 
 }
