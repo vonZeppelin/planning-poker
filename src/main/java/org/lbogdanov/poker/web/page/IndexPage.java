@@ -207,7 +207,9 @@ public class IndexPage extends AbstractPage {
                 try {
                     Duration.parse(validatable.getValue());
                 } catch (IllegalArgumentException e) {
-                    validatable.error(new ValidationError(IndexPage.this.getString("session.create.estimates.invalidEstimates")));
+                    ValidationError error = new ValidationError();
+                    error.addKey("session.create.estimates.invalidEstimate").setVariable("estimate", e.getMessage());
+                    validatable.error(error);
                 }
             }
 
