@@ -119,7 +119,7 @@ public class AppInitializer extends GuiceServletContextListener {
                 provider.setKey(GOOGLE_OAUTH_KEY.asString().get());
                 provider.setSecret(GOOGLE_OAUTH_SECRET.asString().get());
                 provider.setCallbackUrl("example.com"); // fake URL, will be replaced by CallbackUrlSetterFilter
-                provider.setScope(Google2Scope.PROFILE);
+                provider.setScope(Google2Scope.EMAIL_AND_PROFILE);
                 return provider;
             }
 

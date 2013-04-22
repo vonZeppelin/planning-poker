@@ -30,6 +30,7 @@ public final class Constants {
     public static final int SESSION_ESTIMATES_MAX_LENGTH = 1024;
     public static final int USER_FIRST_NAME_MAX_LENGTH = 128;
     public static final int USER_LAST_NAME_MAX_LENGTH = 128;
+    public static final int USER_EMAIL_MAX_LENGTH = 254;
     public static final int USER_EXTERNAL_ID_MAX_LENGTH = 64;
 
     public static final String OAUTH_FILTER_URL = "oauth";

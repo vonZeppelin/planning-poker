@@ -90,6 +90,7 @@ public class UserServiceImpl implements UserService {
         if (googleProfile != null) { // Google OAuth realm
             user.setFirstName(googleProfile.getFirstName());
             user.setLastName(googleProfile.getFamilyName());
+            user.setEmail(googleProfile.getEmail());
             return user;
         }
         String simpleProfile = principals.oneByType(String.class);

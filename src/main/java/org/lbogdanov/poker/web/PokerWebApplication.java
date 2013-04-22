@@ -34,6 +34,7 @@ import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.web.page.IndexPage;
+import org.lbogdanov.poker.web.page.ProfilePage;
 import org.lbogdanov.poker.web.page.SessionPage;
 
 import fiftyfive.wicket.shiro.ShiroWicketPlugin;
@@ -113,6 +114,7 @@ public class PokerWebApplication extends WebApplication {
         }
         mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));
         mountPage("/session/${code}", SessionPage.class);
+        mountPage("/user/", ProfilePage.class);
     }
 
 }
