@@ -15,7 +15,10 @@
  */
 package org.lbogdanov.poker.core;
 
-import static org.lbogdanov.poker.core.Constants.*;
+import static org.lbogdanov.poker.core.Constants.USER_EMAIL_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.USER_EXTERNAL_ID_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.USER_FIRST_NAME_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.USER_LAST_NAME_MAX_LENGTH;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

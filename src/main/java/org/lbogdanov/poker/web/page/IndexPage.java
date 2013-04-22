@@ -36,7 +36,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.util.LazyInitializer;
 import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
@@ -77,33 +76,6 @@ public class IndexPage extends AbstractPage {
         private String name;
         private String description;
         private String estimates;
-
-    }
-
-    /**
-     * A helper class to add Bootstrap validation styles to a control group.
-     */
-    static final class ValidationModel extends AbstractReadOnlyModel<String> {
-
-        private String cssClass;
-        private LazyInitializer<FormComponent<?>> field;
-
-        public ValidationModel(final Form<?> form, final String field, String cssClass) {
-            this.cssClass = cssClass;
-            this.field = new LazyInitializer<FormComponent<?>>() {
-
-                @Override
-                protected FormComponent<?> createInstance() {
-                    return (FormComponent<?>) form.get(field);
-                }
-
-            };
-        }
-
-        @Override
-        public String getObject() {
-            return field.get().isValid() ? null : cssClass;
-        }
 
     }
 

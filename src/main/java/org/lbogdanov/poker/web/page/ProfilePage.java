@@ -12,26 +12,24 @@ import org.apache.shiro.authz.annotation.RequiresUser;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
-import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.form.EmailTextField;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.RequiredTextField;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
-import org.lbogdanov.poker.web.page.IndexPage.ValidationModel;
 
-import com.avaje.ebean.EbeanServer;
 
 /**
  * Represents a user's profile page.
  * 
  * @author Alexandra Fomina
- *
  */
 @RequiresUser
 public class ProfilePage extends AbstractPage {
 
-    @Inject
-    private EbeanServer ebean;
     @Inject
     private UserService userService;
 
@@ -49,7 +47,7 @@ public class ProfilePage extends AbstractPage {
 
                         @Override
                         protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                            ebean.save((User) form.getModelObject());
+                            userService.save((User) form.getModelObject());
                             form.success(ProfilePage.this.getString("profile.updated"));
                             if (target != null) {
                                 target.add(form);

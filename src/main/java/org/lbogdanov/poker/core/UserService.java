@@ -40,4 +40,11 @@ public interface UserService {
      */
     public void login(String username, String password, boolean rememberme);
 
+    /**
+     * Persists current state of a specified <code>User</code> object.
+     * 
+     * @param user the <code>User</code> object
+     */
+    public void save(User user);
+
 }

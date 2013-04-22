@@ -114,7 +114,7 @@ public class PokerWebApplication extends WebApplication {
         }
         mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));
         mountPage("/session/${code}", SessionPage.class);
-        mountPage("/user/", ProfilePage.class);
+        mountPage("/profile/", ProfilePage.class);
     }
 
 }

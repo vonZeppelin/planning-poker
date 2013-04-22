@@ -59,6 +59,14 @@ public class UserServiceImpl implements UserService {
         SecurityUtils.getSubject().login(new UsernamePasswordToken(username, password, rememberme));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Transactional
+    public void save(User user) {
+        ebean.save(user);
+    }
+
     @Transactional
     User findOrCreateUser(PrincipalCollection principals) {
         User user = ebean.find(User.class)
