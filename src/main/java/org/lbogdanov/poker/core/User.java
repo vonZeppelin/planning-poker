@@ -15,9 +15,7 @@
  */
 package org.lbogdanov.poker.core;
 
-import static org.lbogdanov.poker.core.Constants.USER_EXTERNAL_ID_MAX_LENGTH;
-import static org.lbogdanov.poker.core.Constants.USER_FIRST_NAME_MAX_LENGTH;
-import static org.lbogdanov.poker.core.Constants.USER_LAST_NAME_MAX_LENGTH;
+import static org.lbogdanov.poker.core.Constants.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,6 +37,8 @@ public class User extends AbstractEntity {
     private String firstName = "";
     @Column(name = "LAST_NAME", length = USER_LAST_NAME_MAX_LENGTH, nullable = true)
     private String lastName = "";
+    @Column(name = "EMAIL", length = USER_EMAIL_MAX_LENGTH, nullable = true)
+    private String email = "";
     @Column(name = "EXTERNAL_ID", length = USER_EXTERNAL_ID_MAX_LENGTH, nullable = false, unique = true)
     private String externalId = "";
 
@@ -76,6 +76,24 @@ public class User extends AbstractEntity {
      */
     public void setLastName(String lastName) {
         this.lastName = limitString(lastName, USER_LAST_NAME_MAX_LENGTH);
+    }
+
+    /**
+     * Returns a user's e-mail.
+     * 
+     * @return the e-mail
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Sets a user's e-mail, only the first {@link Constants.USER_EMAIL_MAX_LENGTH} characters are stored.
+     * 
+     * @param email the e-mail to set
+     */
+    public void setEmail(String email) {
+        this.email = limitString(email, USER_EMAIL_MAX_LENGTH);
     }
 
     /**

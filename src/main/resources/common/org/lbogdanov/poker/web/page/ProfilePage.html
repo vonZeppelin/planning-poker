@@ -1,0 +1,34 @@
+<wicket:extend>
+  <br>
+  <div class="span12">
+    <form wicket:id="profile">
+      <fieldset>
+        <div class="control-group" wicket:id="nameGroup">
+          <label class="control-label" wicket:for="firstName"><wicket:message key="profile.firstName" /></label>
+          <div class="controls">
+            <input type="text" wicket:id="firstName" wicket:message="placeholder:profile.firstName" class="span6" required>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" wicket:for="lastName"><wicket:message key="profile.lastName" /></label>
+          <div class="controls">
+            <input type="text" wicket:id="lastName" wicket:message="placeholder:profile.lastName" class="span6">
+          </div>
+        </div>
+        <div class="control-group" wicket:id="emailGroup">
+          <label class="control-label" wicket:for="email"><wicket:message key="profile.email" /></label>
+          <div class="controls">
+            <input type="email" wicket:id="email" wicket:message="placeholder:profile.email" class="span6">
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <button type="submit" wicket:id="save" class="btn btn-primary"><wicket:message key="profile.save" /></button>
+            <button type="reset" class="btn"><wicket:message key="profile.reset" /></button>
+          </div>
+        </div>
+      </fieldset>
+      <span wicket:id="feedback"></span>
+    </form>
+  </div>
+</wicket:extend>

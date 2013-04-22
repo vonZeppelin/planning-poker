@@ -83,7 +83,7 @@ public class IndexPage extends AbstractPage {
     /**
      * A helper class to add Bootstrap validation styles to a control group.
      */
-    private static final class ValidationModel extends AbstractReadOnlyModel<String> {
+    static final class ValidationModel extends AbstractReadOnlyModel<String> {
 
         private String cssClass;
         private LazyInitializer<FormComponent<?>> field;
