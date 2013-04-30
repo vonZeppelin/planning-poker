@@ -19,10 +19,12 @@ import javax.inject.Inject;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
+import org.lbogdanov.poker.web.page.UserSessionsPage;
 
 import fiftyfive.wicket.shiro.markup.LogoutLink;
 
@@ -60,7 +62,15 @@ public class NavBar extends Panel { // TODO Remove this class?
 
         });
         userMenu.add(username, new LogoutLink("logout"));
-        add(userMenu);
+        add(userMenu, new BookmarkablePageLink<Void>("sessions", UserSessionsPage.class) {
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setVisible(userService.getCurrentUser() != null);
+            }
+
+        });
     }
 
 }
