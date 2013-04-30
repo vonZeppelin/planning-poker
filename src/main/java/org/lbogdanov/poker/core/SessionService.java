@@ -40,6 +40,17 @@ public interface SessionService {
     public Session find(String code);
 
     /**
+     * Returns the given number of sessions created by a specified author ordered by a specified order criterion.
+     * 
+     * @param author the author
+     * @param orderBy the order criterion
+     * @param ascending <code>true</code> for ascending sort order
+     * @param pageSize the number of returned sessions
+     * @return the sessions
+     */
+    public PagingList<Session> find(User author, String orderBy, boolean ascending, int pageSize);
+
+    /**
      * Creates a new session object and persists it in a storage.
      * 
      * @param name the session name
@@ -48,5 +59,12 @@ public interface SessionService {
      * @return a newly created <code>Session</code> object
      */
     public Session create(String name, String description, String estimates);
+
+    /**
+     * Deletes a session.
+     * 
+     * @param session the session to delete
+     */
+    public void delete(Session session);
 
 }
