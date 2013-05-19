@@ -15,8 +15,6 @@
  */
 package org.lbogdanov.poker.web;
 
-import java.util.Locale;
-
 import javax.inject.Singleton;
 
 import org.apache.shiro.SecurityUtils;
@@ -24,18 +22,18 @@ import org.apache.wicket.ConverterLocator;
 import org.apache.wicket.IConverterLocator;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
-import org.apache.wicket.core.request.mapper.CryptoMapper;
+import org.apache.wicket.atmosphere.EventBus;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.string.Strings;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.web.page.IndexPage;
 import org.lbogdanov.poker.web.page.ProfilePage;
 import org.lbogdanov.poker.web.page.SessionPage;
+import org.lbogdanov.poker.web.page.SessionPage.Subscriber;
+import org.lbogdanov.poker.web.util.UserSerializer;
 
 import fiftyfive.wicket.shiro.ShiroWicketPlugin;
 
@@ -78,19 +76,7 @@ public class PokerWebApplication extends WebApplication {
     @Override
     protected IConverterLocator newConverterLocator() {
         ConverterLocator locator = (ConverterLocator) super.newConverterLocator();
-        locator.set(User.class, new IConverter<User>() {
-
-            @Override
-            public String convertToString(User value, Locale locale) {
-                return Strings.join(" ", value.getFirstName(), value.getLastName());
-            }
-
-            @Override
-            public User convertToObject(String value, Locale locale) {
-                throw new UnsupportedOperationException();
-            }
-
-        });
+        locator.set(User.class, UserSerializer.get());
         return locator;
     }
 
@@ -100,6 +86,7 @@ public class PokerWebApplication extends WebApplication {
     @Override
     protected void init() {
         super.init();
+        new EventBus(this).addRegistrationListener(Subscriber.get());
         new ShiroWicketPlugin() {
 
             @Override
@@ -109,9 +96,10 @@ public class PokerWebApplication extends WebApplication {
             public void onLoginRequired() {}
 
         }.mountLoginPage(null, getHomePage()).install(this);
-        if (usesDeploymentConfig()) {
-            setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
-        }
+        // TODO Atmosphere issue
+        // if (usesDeploymentConfig()) {
+        //    setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
+        // }
         mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));
         mountPage("/session/${code}", SessionPage.class);
         mountPage("/profile/", ProfilePage.class);

@@ -113,7 +113,8 @@ public class IndexPage extends AbstractPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 Credentials credentials = (Credentials) form.getModelObject();
-                getSession().replaceSession();
+                // TODO Atmosphere issue
+                // getSession().replaceSession();
                 try {
                     userService.login(credentials.username, credentials.password, credentials.rememberme);
                     if (target != null) {

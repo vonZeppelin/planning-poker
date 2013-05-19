@@ -29,9 +29,13 @@ import org.apache.shiro.config.IniFactorySupport;
 import org.apache.shiro.guice.web.ShiroWebModule;
 import org.apache.shiro.realm.text.IniRealm;
 import org.apache.wicket.RuntimeConfigurationType;
+import org.apache.wicket.atmosphere.TrackMessageSizeFilter;
 import org.apache.wicket.guice.GuiceWebApplicationFactory;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WicketFilter;
+import org.atmosphere.cache.UUIDBroadcasterCache;
+import org.atmosphere.cpr.ApplicationConfig;
+import org.atmosphere.cpr.MeteorServlet;
 import org.lbogdanov.poker.core.*;
 import org.lbogdanov.poker.core.impl.SessionServiceImpl;
 import org.lbogdanov.poker.core.impl.UserServiceImpl;
@@ -40,6 +44,7 @@ import org.lbogdanov.poker.web.oauth.CallbackUrlSetterFilter;
 import org.lbogdanov.poker.web.oauth.InjectableOAuthFilter;
 import org.lbogdanov.poker.web.oauth.InjectableOAuthRealm;
 import org.lbogdanov.poker.web.oauth.InjectableOAuthUserFilter;
+import org.lbogdanov.poker.web.util.UserSerializer;
 import org.scribe.up.provider.OAuthProvider;
 import org.scribe.up.provider.impl.Google2Provider;
 import org.scribe.up.provider.impl.Google2Provider.Google2Scope;
@@ -49,6 +54,8 @@ import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.EbeanServerFactory;
 import com.avaje.ebean.config.DataSourceConfig;
 import com.avaje.ebean.config.ServerConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
@@ -95,8 +102,9 @@ public class AppInitializer extends GuiceServletContextListener {
             }
             Settings.init(Maps.fromProperties(props));
         } catch (IOException ioe) {
-            Throwables.propagate(ioe);
+            throw Throwables.propagate(ioe);
         }
+        final boolean isDevel = DEVELOPMENT_MODE.asBool().or(false);
         Module shiroModule = new ShiroWebModule(servletContext) {
 
             @Override
@@ -149,21 +157,33 @@ public class AppInitializer extends GuiceServletContextListener {
                 bind(SessionService.class).to(SessionServiceImpl.class);
                 bind(UserService.class).to(UserServiceImpl.class);
                 bind(WebApplication.class).to(PokerWebApplication.class);
-                bind(WicketFilter.class).in(Singleton.class);
-                String wicketConfig = (DEVELOPMENT_MODE.asBool().or(false) ? RuntimeConfigurationType.DEVELOPMENT
-                                                                           : RuntimeConfigurationType.DEPLOYMENT).toString();
-                filter("/*").through(WicketFilter.class, ImmutableMap.of(WicketFilter.FILTER_MAPPING_PARAM,
-                                                                         "/*",
-                                                                         WebApplication.CONFIGURATION,
-                                                                         wicketConfig,
-                                                                         WicketFilter.APP_FACT_PARAM,
-                                                                         GuiceWebApplicationFactory.class.getName(),
-                                                                         "injectorContextAttribute",
-                                                                         Injector.class.getName()));
+                bind(MeteorServlet.class).in(Singleton.class);
+                bind(ObjectMapper.class).toProvider(new Provider<ObjectMapper>() {
+
+                    @Override
+                    public ObjectMapper get() {
+                        SimpleModule module = new SimpleModule().addSerializer(UserSerializer.get());
+                        return new ObjectMapper().registerModule(module);
+                    }
+
+                }).in(Singleton.class);
+                String wicketConfig = (isDevel ? RuntimeConfigurationType.DEVELOPMENT
+                                               : RuntimeConfigurationType.DEPLOYMENT).toString();
+                ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
+                params.put(ApplicationConfig.FILTER_CLASS, WicketFilter.class.getName())
+                      .put(ApplicationConfig.PROPERTY_SESSION_SUPPORT, Boolean.TRUE.toString())
+                      .put(ApplicationConfig.BROADCAST_FILTER_CLASSES, TrackMessageSizeFilter.class.getName())
+                      .put(ApplicationConfig.BROADCASTER_CACHE, UUIDBroadcasterCache.class.getName())
+                      .put(WicketFilter.FILTER_MAPPING_PARAM, "/*")
+                      .put(WebApplication.CONFIGURATION, wicketConfig)
+                      .put(WicketFilter.APP_FACT_PARAM, GuiceWebApplicationFactory.class.getName())
+                      .put("injectorContextAttribute", Injector.class.getName()).build();
+                serve("/*").with(MeteorServlet.class, params.build());
             }
 
         };
-        return Guice.createInjector(ShiroWebModule.guiceFilterModule(), shiroModule, appModule);
+        Stage stage = isDevel ? Stage.DEVELOPMENT : Stage.PRODUCTION;
+        return Guice.createInjector(stage, ShiroWebModule.guiceFilterModule(), shiroModule, appModule);
     }
 
 }

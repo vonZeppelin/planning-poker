@@ -130,6 +130,9 @@ public class User extends AbstractEntity {
      */
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj instanceof User) {
             User other = (User) obj;
             return Objects.equal(this.getExternalId(), other.getExternalId());

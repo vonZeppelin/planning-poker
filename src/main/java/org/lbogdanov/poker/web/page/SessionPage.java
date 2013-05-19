@@ -21,15 +21,19 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authz.annotation.RequiresUser;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.atmosphere.EventBus;
+import org.apache.wicket.atmosphere.ResourceRegistrationListener;
+import org.apache.wicket.atmosphere.Subscribe;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -40,14 +44,25 @@ import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
+import org.atmosphere.cpr.AtmosphereResource;
+import org.atmosphere.cpr.Broadcaster;
+import org.atmosphere.cpr.BroadcasterFactory;
+import org.atmosphere.cpr.Meteor;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
+import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BodylessLabel;
 import org.lbogdanov.poker.web.markup.LimitableLabel;
 import org.lbogdanov.poker.web.plugin.CustomScrollbarPlugin;
+import org.lbogdanov.poker.web.util.ChatMessage;
+import org.lbogdanov.poker.web.util.Message;
+import org.lbogdanov.poker.web.util.OriginFilter;
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
@@ -60,18 +75,64 @@ import com.google.common.collect.Iterables;
 @RequiresUser
 public class SessionPage extends AbstractPage {
 
+    /**
+     * Subscribes clients to corresponding named {@link Broadcaster}s depending on the current <code>Session</code> code.
+     */
+    public static final class Subscriber implements ResourceRegistrationListener {
+
+        private static final Subscriber INSTANCE = new Subscriber();
+
+        /**
+         * Returns a single instance of <code>Subscriber</code>.
+         * 
+         * @return the <code>Subscriber</code> instance
+         */
+        public static Subscriber get() {
+            return INSTANCE;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void resourceRegistered(String uuid, Page page) {
+            if (page instanceof SessionPage) {
+                Session session = ((SessionPage) page).session;
+                Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(session.getCode(), true);
+                // TODO Atmosphere issue: searching AtmosphereResource instance by its uuid doesn't work
+                Meteor meteor = Meteor.lookup((HttpServletRequest) page.getRequest().getContainerRequest());
+                broadcaster.addAtmosphereResource(meteor.getAtmosphereResource());
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void resourceUnregistered(String uuid) {}
+
+        private Subscriber() {}
+
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(SessionPage.class);
     private static final int LABEL_MAX_LENGTH = 32;
     private static final ResourceReference CSS = new CssResourceReference(SessionPage.class, "session.css");
     private static final ResourceReference JS = new PageScriptResourceReference(SessionPage.class, "session.js");
 
     @Inject
     private SessionService sessionService;
+    @Inject
+    private UserService userService;
+    @Inject
+    private ObjectMapper mapper;
+    private Session session;
 
     /**
      * Creates a new instance of <code>Session</code> page.
      */
     public SessionPage(PageParameters parameters) {
-        Session session = sessionService.find(parameters.get("code").toString());
+        session = sessionService.find(parameters.get("code").toString());
         if (session == null) {
             throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, "Session not found");
         }
@@ -82,25 +143,19 @@ public class SessionPage extends AbstractPage {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                System.out.println(chatMsg.getModelObject());
+                ChatMessage message = new ChatMessage(getSession().getId(), userService.getCurrentUser(),
+                                                      chatMsg.getModelObject());
+                post(session.getCode(), message);
             }
 
             @Override
             protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
-                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
-
-                    @Override
-                    public CharSequence getPrecondition(Component component) {
-                        return "return $('#chatMsg').val().length > 0;";
-                    }
-
-                    @Override
-                    public CharSequence getCompleteHandler(Component component) {
-                        return "Poker.msgSend(jqXHR);";
-                    }
-
-                });
+                AjaxCallListener listener = new AjaxCallListener();
+                listener.onPrecondition("return $('#chatMsg').val().length > 0;")
+                        .onBeforeSend("Poker.toggleForm('chatForm', true);")
+                        .onComplete("Poker.msgSent(jqXHR); Poker.toggleForm('chatForm', false);");
+                attributes.getAjaxCallListeners().add(listener);
             }
 
         });
@@ -127,6 +182,34 @@ public class SessionPage extends AbstractPage {
         response.render(JavaScriptHeaderItem.forReference(I18N));
         response.render(JavaScriptHeaderItem.forReference(CustomScrollbarPlugin.get()));
         response.render(JavaScriptHeaderItem.forReference(JS));
+    }
+
+    /**
+     * Asynchronously publishes messages to the session participants via Atmosphere framework.
+     * 
+     * @param target the <code>AjaxRequestTarget</code> instance
+     * @param msg the message to publish
+     * @throws Exception if any error occurred
+     */
+    @Subscribe(contextAwareFilter = OriginFilter.class)
+    public void publishMessage(AjaxRequestTarget target, Message<?> msg) throws Exception {
+        if (target == null) {
+            LOG.info("Couldn't sent async message, target was null");
+        } else {
+            target.appendJavaScript(String.format("Poker.dispatch(%s);", mapper.writeValueAsString(msg)));
+        }
+    }
+
+    private static void post(Object channel, Message<?> message) {
+        Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(channel);
+        if (broadcaster == null) {
+            LOG.info("No active Broadcaster for a channel {}", channel);
+        } else {
+            EventBus eventBus = EventBus.get();
+            for (AtmosphereResource resource : broadcaster.getAtmosphereResources()) {
+                eventBus.post(message, resource);
+            }
+        }
     }
 
     private String formatDate(Date created) {

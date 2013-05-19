@@ -170,6 +170,9 @@ public class Session extends AbstractEntity {
      */
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj instanceof Session) {
             Session other = (Session) obj;
             return Objects.equal(getCode(), other.getCode());
