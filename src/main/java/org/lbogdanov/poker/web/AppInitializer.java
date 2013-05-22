@@ -174,6 +174,7 @@ public class AppInitializer extends GuiceServletContextListener {
                       .put(ApplicationConfig.PROPERTY_SESSION_SUPPORT, Boolean.TRUE.toString())
                       .put(ApplicationConfig.BROADCAST_FILTER_CLASSES, TrackMessageSizeFilter.class.getName())
                       .put(ApplicationConfig.BROADCASTER_CACHE, UUIDBroadcasterCache.class.getName())
+                      .put(ApplicationConfig.SHOW_SUPPORT_MESSAGE, Boolean.FALSE.toString())
                       .put(WicketFilter.FILTER_MAPPING_PARAM, "/*")
                       .put(WebApplication.CONFIGURATION, wicketConfig)
                       .put(WicketFilter.APP_FACT_PARAM, GuiceWebApplicationFactory.class.getName())

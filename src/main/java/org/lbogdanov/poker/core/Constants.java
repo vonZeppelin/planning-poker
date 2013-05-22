@@ -23,6 +23,7 @@ package org.lbogdanov.poker.core;
  */
 public final class Constants {
 
+    public static final int LABEL_MAX_LENGTH = 32;
     public static final int SESSION_CODE_DEFAULT_LENGTH = 10;
     public static final int SESSION_CODE_MAX_LENGTH = 32;
     public static final int SESSION_NAME_MAX_LENGTH = 128;
@@ -35,6 +36,7 @@ public final class Constants {
 
     public static final String OAUTH_FILTER_URL = "oauth";
     public static final String OAUTH_CLBK_FILTER_URL = "oauth-clbk";
+    public static final String DEFAULT_ASYNC_TRANSPORT = "long_polling";
 
     private Constants() {}
 

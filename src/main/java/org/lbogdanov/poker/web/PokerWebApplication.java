@@ -15,6 +15,11 @@
  */
 package org.lbogdanov.poker.web;
 
+import static org.lbogdanov.poker.core.Constants.DEFAULT_ASYNC_TRANSPORT;
+import static org.lbogdanov.poker.util.Settings.ASYNC_TRANSPORT;
+
+import java.util.Locale;
+
 import javax.inject.Singleton;
 
 import org.apache.shiro.SecurityUtils;
@@ -23,6 +28,7 @@ import org.apache.wicket.IConverterLocator;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.atmosphere.EventBus;
+import org.apache.wicket.atmosphere.config.AtmosphereTransport;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
@@ -86,7 +92,10 @@ public class PokerWebApplication extends WebApplication {
     @Override
     protected void init() {
         super.init();
-        new EventBus(this).addRegistrationListener(Subscriber.get());
+        String asyncTransport = ASYNC_TRANSPORT.asString().or(DEFAULT_ASYNC_TRANSPORT);
+        EventBus eventBus = new EventBus(this);
+        eventBus.getParameters().setTransport(AtmosphereTransport.valueOf(asyncTransport.toUpperCase(Locale.ENGLISH)));
+        eventBus.addRegistrationListener(Subscriber.get());
         new ShiroWicketPlugin() {
 
             @Override

@@ -34,7 +34,7 @@ public class OriginFilter implements Predicate<AtmosphereEvent> {
      */
     @Override
     public boolean apply(AtmosphereEvent input) {
-        return !Objects.equal(((Message) input.getPayload()).origin, Session.get().getId());
+        return !Objects.equal(((Message<?>) input.getPayload()).origin, Session.get().getId());
     }
 
 }

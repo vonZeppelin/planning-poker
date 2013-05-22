@@ -15,6 +15,8 @@
  */
 package org.lbogdanov.poker.web.page;
 
+import static org.lbogdanov.poker.core.Constants.LABEL_MAX_LENGTH;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -116,7 +118,6 @@ public class SessionPage extends AbstractPage {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionPage.class);
-    private static final int LABEL_MAX_LENGTH = 32;
     private static final ResourceReference CSS = new CssResourceReference(SessionPage.class, "session.css");
     private static final ResourceReference JS = new PageScriptResourceReference(SessionPage.class, "session.js");
 
