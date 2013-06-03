@@ -1,21 +1,13 @@
 <wicket:panel>
   <div class="pagination">
     <ul>
-      <li>
-        <a wicket:id="first" class="first">&laquo;</a>
-      </li>
-      <li>
-        <a wicket:id="prev" class="prev">&lsaquo;</a>
-      </li>
+      <li wicket:id="firstParent"><a wicket:id="first" class="first">&laquo;</a></li>
+      <li wicket:id="prevParent"><a wicket:id="prev" class="prev">&lsaquo;</a></li>
       <li wicket:id="navigation" class="goto">
         <a wicket:id="pageLink"><span wicket:id="pageNumber"></span></a>
       </li>
-      <li>
-        <a wicket:id="next" class="next">&rsaquo;</a>
-      </li>
-      <li>
-        <a wicket:id="last" class="last">&raquo;</a>
-      </li>
+      <li wicket:id="nextParent"><a wicket:id="next" class="next">&rsaquo;</a></li>
+      <li wicket:id="lastParent"><a wicket:id="last" class="last">&raquo;</a></li>
     </ul>
   </div>
 </wicket:panel>

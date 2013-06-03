@@ -15,16 +15,19 @@
  */
 package org.lbogdanov.poker.web.markup;
 
+import static org.apache.wicket.AttributeModifier.append;
+
 import javax.inject.Inject;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.core.UserService;
-import org.lbogdanov.poker.web.page.UserSessionsPage;
+import org.lbogdanov.poker.web.page.MySessionsPage;
 
 import fiftyfive.wicket.shiro.markup.LogoutLink;
 
@@ -34,7 +37,7 @@ import fiftyfive.wicket.shiro.markup.LogoutLink;
  * 
  * @author Leonid Bogdanov
  */
-public class NavBar extends Panel { // TODO Remove this class?
+public class NavBar extends Panel {
 
     @Inject
     private UserService userService;
@@ -44,15 +47,16 @@ public class NavBar extends Panel { // TODO Remove this class?
      */
     public NavBar(String id) {
         super(id);
-        WebMarkupContainer userMenu = new WebMarkupContainer("userMenu") {
+        Behavior visibilityManager = new Behavior() {
 
             @Override
-            protected void onConfigure() {
-                super.onConfigure();
-                setVisible(userService.getCurrentUser() != null);
+            public void onConfigure(Component component) {
+                component.setVisible(userService.getCurrentUser() != null);
             }
 
         };
+        WebMarkupContainer userMenu = new WebMarkupContainer("userMenu");
+        WebMarkupContainer navigation = new WebMarkupContainer("navigation");
         Label username = new BodylessLabel("username", new AbstractReadOnlyModel<User>() {
 
             @Override
@@ -62,15 +66,15 @@ public class NavBar extends Panel { // TODO Remove this class?
 
         });
         userMenu.add(username, new LogoutLink("logout"));
-        add(userMenu, new BookmarkablePageLink<Void>("sessions", UserSessionsPage.class) {
+        navigation.add(new WebMarkupContainer("sessions").add(append("class", new AbstractReadOnlyModel<String>() {
 
             @Override
-            protected void onConfigure() {
-                super.onConfigure();
-                setVisible(userService.getCurrentUser() != null);
+            public String getObject() {
+                return MySessionsPage.class.equals(NavBar.this.getPage().getClass()) ? "active" : null;
             }
 
-        });
+        })));
+        add(userMenu.add(visibilityManager), navigation.add(visibilityManager));
     }
 
 }

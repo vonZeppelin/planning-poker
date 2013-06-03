@@ -35,9 +35,7 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.lbogdanov.poker.core.User;
-import org.lbogdanov.poker.web.page.IndexPage;
-import org.lbogdanov.poker.web.page.ProfilePage;
-import org.lbogdanov.poker.web.page.SessionPage;
+import org.lbogdanov.poker.web.page.*;
 import org.lbogdanov.poker.web.page.SessionPage.Subscriber;
 import org.lbogdanov.poker.web.util.UserSerializer;
 
@@ -112,7 +110,7 @@ public class PokerWebApplication extends WebApplication {
         mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));
         mountPage("/session/${code}", SessionPage.class);
         mountPage("/profile/", ProfilePage.class);
-        mountPage("/sessions/", UserSessionsPage.class);
+        mountPage("/sessions/", MySessionsPage.class);
     }
 
 }

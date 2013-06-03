@@ -27,8 +27,10 @@ import javax.inject.Singleton;
 import org.lbogdanov.poker.core.*;
 
 import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.OrderBy;
+import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.annotation.Transactional;
+import com.google.common.base.Strings;
 
 
 /**
@@ -60,10 +62,35 @@ public class SessionServiceImpl implements SessionService {
      */
     @Override
     @Transactional(readOnly = true)
+    public Session find(Object id) {
+        return ebean.find(Session.class, id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
     public Session find(String code) {
         return ebean.find(Session.class)
                     .where().eq("code", code)
                     .findUnique();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PagingList<Session> find(User user, String name, String orderBy, boolean ascending, int pageSize) {
+        // TODO Union with session where the user participated
+        ExpressionList<Session> expr = ebean.find(Session.class)
+                                            .where().eq("author", user);
+        if (!Strings.isNullOrEmpty(name)) {
+            expr = expr.ilike("name", name);
+        }
+        Query<Session> query = ascending ? expr.orderBy().asc(orderBy) : expr.orderBy().asc(orderBy);
+        return new EbeanPagingList<Session>(query.findPagingList(pageSize));
     }
 
     /**
@@ -86,18 +113,7 @@ public class SessionServiceImpl implements SessionService {
      * {@inheritDoc}
      */
     @Override
-    public PagingList<Session> find(User author, String orderBy, boolean ascending, int pageSize) {
-        OrderBy<Session> order = ebean.find(Session.class)
-                                      .where().eq("author", author)
-                                      .orderBy();
-        return new EbeanPagingList<Session>((ascending ? order.asc(orderBy) : order.desc(orderBy)).findPagingList(pageSize));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void delete(Session session) {
         ebean.delete(session);
     }

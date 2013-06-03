@@ -32,6 +32,14 @@ public interface SessionService {
     public boolean exists(String code);
 
     /**
+     * Returns a session by a specified ID (primary key), or <code>null</code> if no such session exists.
+     * 
+     * @param id the session ID
+     * @return the session
+     */
+    public Session find(Object id);
+
+    /**
      * Returns a session with a specified code, or <code>null</code> if no such session exists.
      * 
      * @param code the session code
@@ -40,15 +48,16 @@ public interface SessionService {
     public Session find(String code);
 
     /**
-     * Returns the given number of sessions created by a specified author ordered by a specified order criterion.
+     * Returns sessions a specified user created or participated in.
      * 
-     * @param author the author
-     * @param orderBy the order criterion
+     * @param user the user
+     * @param name sessions name pattern
+     * @param orderBy the order by criterion
      * @param ascending <code>true</code> for ascending sort order
-     * @param pageSize the number of returned sessions
-     * @return the sessions
+     * @param pageSize the max number of sessions in a page
+     * @return the sessions as a <code>PagingList</code>
      */
-    public PagingList<Session> find(User author, String orderBy, boolean ascending, int pageSize);
+    public PagingList<Session> find(User user, String name, String orderBy, boolean ascending, int pageSize);
 
     /**
      * Creates a new session object and persists it in a storage.

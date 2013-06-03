@@ -1,0 +1,19 @@
+<wicket:extend>
+  <br>
+  <form class="form-inline">
+    <div class="input-prepend">
+      <span class="add-on"><wicket:message key="session.name" /></span>
+      <input class="span2" wicket:id="sessionName" type="text">
+    </div>
+    <div class="pull-right">
+      <label wicket:for="pageSize"><wicket:message key="session.itemsPerPage" /></label>
+      <select wicket:id="pageSize" style="width: 100px;"></select>
+    </div>
+  </form>
+  <table class="table table-bordered table-striped" wicket:id="sessions"></table>
+  <wicket:fragment wicket:id="actions">
+    <a class="btn" wicket:id="goto" href="#" wicket:message="title:session.goto"><i class="icon-share-alt"></i></a>
+    &nbsp;
+    <a class="btn" wicket:id="delete" href="#" wicket:message="title:session.delete"><i class="icon-trash"></i></a>
+  </wicket:fragment>
+</wicket:extend>
