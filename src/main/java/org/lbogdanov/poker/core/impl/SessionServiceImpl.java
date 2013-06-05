@@ -83,13 +83,13 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional(readOnly = true)
     public PagingList<Session> find(User user, String name, String orderBy, boolean ascending, int pageSize) {
-        // TODO Union with session where the user participated
-        ExpressionList<Session> expr = ebean.find(Session.class)
-                                            .where().eq("author", user);
+        // TODO union with sessions where the user has participated
+        Query<Session> query = ebean.find(Session.class);
+        ExpressionList<Session> expr = query.where().eq("author", user);
         if (!Strings.isNullOrEmpty(name)) {
             expr = expr.ilike("name", name);
         }
-        Query<Session> query = ascending ? expr.orderBy().asc(orderBy) : expr.orderBy().asc(orderBy);
+        query = ascending ? expr.orderBy().asc(orderBy) : expr.orderBy().desc(orderBy);
         return new EbeanPagingList<Session>(query.findPagingList(pageSize));
     }
 
