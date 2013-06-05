@@ -20,11 +20,14 @@ import static org.lbogdanov.poker.core.Constants.SESSION_DESCRIPTION_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_ESTIMATES_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 
 
 /**
@@ -50,6 +53,8 @@ public class Session extends AbstractEntity {
     private User author;
     @Column(name = "ESTIMATES", length = SESSION_ESTIMATES_MAX_LENGTH, nullable = false)
     private String estimates;
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
+    private List<Item> items = Collections.emptyList();
 
     /**
      * Returns a session name.
@@ -155,6 +160,24 @@ public class Session extends AbstractEntity {
      */
     public void setEstimates(String estimates) {
         this.estimates = estimates;
+    }
+
+    /**
+     * Returns session items.
+     * 
+     * @return the items
+     */
+    public List<Item> getItems() {
+        return ImmutableList.copyOf(items);
+    }
+
+    /**
+     * Sets session items.
+     * 
+     * @param items the items to set
+     */
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 
     /**

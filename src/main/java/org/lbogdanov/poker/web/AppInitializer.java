@@ -152,6 +152,7 @@ public class AppInitializer extends GuiceServletContextListener {
                 dbConfig.setDefaultServer(true);
                 dbConfig.addClass(Session.class);
                 dbConfig.addClass(User.class);
+                dbConfig.addClass(Item.class);
 
                 bind(EbeanServer.class).toInstance(EbeanServerFactory.create(dbConfig));
                 bind(SessionService.class).to(SessionServiceImpl.class);

@@ -89,7 +89,7 @@ public class SessionServiceImpl implements SessionService {
         if (!Strings.isNullOrEmpty(name)) {
             expr = expr.ilike("name", name);
         }
-        Query<Session> query = ascending ? expr.orderBy().asc(orderBy) : expr.orderBy().asc(orderBy);
+        Query<Session> query = ascending ? expr.orderBy().asc(orderBy) : expr.orderBy().desc(orderBy);
         return new EbeanPagingList<Session>(query.findPagingList(pageSize));
     }
 
@@ -116,6 +116,33 @@ public class SessionServiceImpl implements SessionService {
     @Transactional
     public void delete(Session session) {
         ebean.delete(session);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void save(Session session) {
+        ebean.save(session);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void removeItem(Item item) {
+        ebean.delete(item);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void saveItem(Item item) {
+        ebean.save(item);
     }
 
     /**
