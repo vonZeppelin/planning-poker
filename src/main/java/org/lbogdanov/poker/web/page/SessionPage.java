@@ -19,6 +19,8 @@ import static org.lbogdanov.poker.core.Constants.LABEL_MAX_LENGTH;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -36,11 +38,21 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.atmosphere.EventBus;
 import org.apache.wicket.atmosphere.ResourceRegistrationListener;
 import org.apache.wicket.atmosphere.Subscribe;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.RequiredTextField;
+import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PropertyListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -50,21 +62,23 @@ import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.Broadcaster;
 import org.atmosphere.cpr.BroadcasterFactory;
 import org.atmosphere.cpr.Meteor;
+import org.lbogdanov.poker.core.Item;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BodylessLabel;
+import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
+import org.lbogdanov.poker.web.markup.ItemPanel;
 import org.lbogdanov.poker.web.markup.LimitableLabel;
 import org.lbogdanov.poker.web.plugin.CustomScrollbarPlugin;
-import org.lbogdanov.poker.web.util.ChatMessage;
-import org.lbogdanov.poker.web.util.Message;
-import org.lbogdanov.poker.web.util.OriginFilter;
+import org.lbogdanov.poker.web.util.*;
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
@@ -128,6 +142,7 @@ public class SessionPage extends AbstractPage {
     @Inject
     private ObjectMapper mapper;
     private Session session;
+    private FeedbackPanel feedback;
 
     /**
      * Creates a new instance of <code>Session</code> page.
@@ -161,16 +176,85 @@ public class SessionPage extends AbstractPage {
 
         });
 
+        WebMarkupContainer moderatorPane = new WebMarkupContainer("moderator") {
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setVisible(Objects.equal(userService.getCurrentUser(), session.getAuthor()));
+            }
+
+        };
+        IModel<List<Item>> itemModel = new IModel<List<Item>>() {
+
+            @Override
+            public void detach() {}
+
+            @Override
+            public List<Item> getObject() {
+                return sessionService.find(session.getCode()).getItems();
+            }
+
+            @Override
+            public void setObject(List<Item> object) {
+                session.setItems(object);
+            }
+
+        };
+        final ListView<Item> items = new PropertyListView<Item>("items", itemModel) {
+
+            @Override
+            protected void populateItem(ListItem<Item> item) {
+                populateListItem(item, userService.getCurrentUser());
+            }
+
+        };
+        Form<?> itemForm = new StatelessForm<Item>("itemForm", new CompoundPropertyModel<Item>(new Item()));
+        itemForm.add(new RequiredTextField<String>("title"), new TextArea<String>("description"),
+                     new AjaxFallbackButton("addItem", itemForm) {
+
+                        @SuppressWarnings("unchecked")
+                        @Override
+                        protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                            Form<Item> itemForm = (Form<Item>) form;
+                            Item item = itemForm.getModelObject();
+                            List<Item> sessionItems = new LinkedList<Item>(session.getItems());
+                            sessionItems.add(item);
+                            session.setItems(sessionItems);
+                            sessionService.save(session);
+                            post(session.getCode(), new ItemMessage(getSession().getId(), item));
+                            itemForm.setModelObject(new Item());
+                        }
+
+                        @Override
+                        protected void onError(AjaxRequestTarget target, Form<?> form) {
+                            if (target != null) {
+                                target.add(form);
+                            }
+                        }
+
+                        @Override
+                        protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                            super.updateAjaxAttributes(attributes);
+                            attributes.getAjaxCallListeners().add(
+                                    new AjaxCallListener().onPrecondition("return $('#itemTitle').val().length > 0;"));
+                        }
+                     });
+        moderatorPane.add(itemForm);
+
         LimitableLabel name = new LimitableLabel("session.name", session.getName());
         if (!Strings.isNullOrEmpty(session.getDescription())) {
             name.add(AttributeModifier.append("class", "tip"),
                      AttributeModifier.append("title", session.getDescription()));
         }
 
+        feedback = new BootstrapFeedbackPanel("feedback");
         add(chatForm.setOutputMarkupId(true), name.setMaxLength(LABEL_MAX_LENGTH),
             new BodylessLabel("session.code", session.getCode()).setMaxLength(LABEL_MAX_LENGTH),
             new BodylessLabel("session.author", session.getAuthor()).setMaxLength(LABEL_MAX_LENGTH),
-            new BodylessLabel("session.created", formatDate(session.getCreated())).setMaxLength(LABEL_MAX_LENGTH));
+            new BodylessLabel("session.created", formatDate(session.getCreated())).setMaxLength(LABEL_MAX_LENGTH),
+            new WebMarkupContainer("itemsContainer").add(items).setOutputMarkupId(true), moderatorPane.setOutputMarkupId(true),
+            feedback.setOutputMarkupId(true));
     }
 
     /**
@@ -183,6 +267,18 @@ public class SessionPage extends AbstractPage {
         response.render(JavaScriptHeaderItem.forReference(I18N));
         response.render(JavaScriptHeaderItem.forReference(CustomScrollbarPlugin.get()));
         response.render(JavaScriptHeaderItem.forReference(JS));
+    }
+
+    @Subscribe
+    @SuppressWarnings("unchecked")
+    public void appendItem(AjaxRequestTarget target, ItemMessage msg) {
+        Item item = msg.message;
+        ListView<Item> listView = (ListView<Item>) get("itemsContainer").get("items");
+        ListItem<Item> listItem = populateListItem(new ListItem<Item>(listView.size(), Model.of(item)), msg.origin);
+        listView.add(listItem.setOutputMarkupId(true));
+        target.prependJavaScript(String.format("Poker.appendItem('%s');", listItem.getMarkupId()));
+        target.add(listItem, feedback);
+        success(SessionPage.this.getString("item.new", Model.of(item)));
     }
 
     /**
@@ -198,6 +294,28 @@ public class SessionPage extends AbstractPage {
             LOG.info("Couldn't sent async message, target was null");
         } else {
             target.appendJavaScript(String.format("Poker.dispatch(%s);", mapper.writeValueAsString(msg)));
+        }
+    }
+
+    @Subscribe
+    public void removeItem(AjaxRequestTarget target, ItemRemoveEvent event) {
+        warn(SessionPage.this.getString("item.removed", Model.of(event.message)));
+        target.add(feedback);
+    }
+
+    @Subscribe(filter = OriginFilter.class)
+    public void editItem(AjaxRequestTarget target, ItemChangeEvent event) throws Exception {
+        info(SessionPage.this.getString("item.modified", Model.of(event.message)));
+        target.add(feedback);
+    }
+
+    @Override
+    public void onEvent(IEvent<?> event) {
+        Object payload = event.getPayload();
+        if (payload instanceof ItemRemoveEvent) {
+            post(session.getCode(), (ItemRemoveEvent) payload);
+        } else if (payload instanceof ItemChangeEvent) {
+            post(session.getCode(), (ItemChangeEvent) payload);
         }
     }
 
@@ -223,6 +341,12 @@ public class SessionPage extends AbstractPage {
         } else { // fallback to an absolute date string when difference is more than a week
             return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale).format(created);
         }
+    }
+
+    private ListItem<Item> populateListItem(ListItem<Item> listItem, Object origin) {
+        listItem.add(new ItemPanel<Item>("item", listItem.getModel(), session, origin))
+                .add(new AttributeModifier("id", "item" + listItem.getModelObject().getId()));
+        return listItem;
     }
 
 }

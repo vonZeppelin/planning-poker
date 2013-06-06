@@ -19,8 +19,34 @@
         </div>
       </div>
       <div class="row">
-        <div class="span8">
+        <div class="span8" id="items" wicket:id="itemsContainer">
+          <span wicket:id="items">
+            <span wicket:id="item"></span>
+          </span>
+        </div>
+      </div>
+      <span wicket:id="feedback" id="feedback"></span>
+      <div class="row">
+        <div wicket:id="moderator" id="moderator" class="span3">
+          <button type="button" class="btn btn-info btn-block" data-toggle="collapse" data-target="#itemForm"><wicket:message key="item.add" /></button>
           &nbsp;
+          <form wicket:id="itemForm" id="itemForm" class="collapse">
+            <fieldset>
+              <div class="control-group">
+                <label class="control-label" wicket:for="title"><wicket:message key="item.title" /></label>
+                <div class="controls">
+                  <input type="text" wicket:id="title" id="itemTitle" wicket:message="placeholder:item.title" required>
+                </div>
+              </div>
+              <label wicket:for="description"><wicket:message key="item.description" /></label>
+              <textarea wicket:id="description" wicket:message="placeholder:item.description"></textarea>
+              <div class="control-group">
+                <div class="controls">
+                  <button type="submit" class="btn btn-info" wicket:id="addItem" id="addItem"><i class="icon-plus icon-white"></i></button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
         </div>
       </div>
     </div>

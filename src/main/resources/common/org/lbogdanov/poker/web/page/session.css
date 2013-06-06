@@ -16,3 +16,8 @@ hr {
 #chatLog div.error {
     color: red;
 }
+
+#items {
+    overflow: auto;
+    height: 450px;
+}

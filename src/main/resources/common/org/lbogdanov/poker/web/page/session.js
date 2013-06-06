@@ -9,6 +9,20 @@ var Poker = (function() {
             $(".mCSB_container", chatLog).append(msg);
             chatLog.mCustomScrollbar("update");
             chatLog.mCustomScrollbar("scrollTo", "last");
+        },
+        updateItems = function() {
+            var items = $("#items");
+            items.mCustomScrollbar("update");
+            items.mCustomScrollbar("scrollTo", "last");
+        },
+        removeItem = function(id) {
+            $("#item" + id).remove();
+            $("#items").mCustomScrollbar("update");
+        },
+        editItem = function(item) {
+            var element = $("#item" + item.id);
+            element.find("span[id ^= title]").text(item.title);
+            element.find("span[id ^= description]").text(item.description == null? "": item.description);
         };
 
     $(function() {
@@ -26,10 +40,10 @@ var Poker = (function() {
         // turn Bootstrap tooltips on
         $(".tip").tooltip();
         // turn custom scrollbars on
-        $("#chatLog").mCustomScrollbar({
-            theme: "dark",
-            scrollButtons: {
-                enable: true
+        $("#chatLog, #items").mCustomScrollbar({
+            theme : "dark",
+            scrollButtons : {
+                enable : true
             }
         });
     });
@@ -55,7 +69,21 @@ var Poker = (function() {
                 case "chatMsg":
                     appendMsg($.i18n.printf(msgTpl, [msg.author, msg.message]));
                     break;
+                case "itemAdd":
+                    updateItems();
+                    break;
+                case "itemRemove":
+                    removeItem(msg.message.id);
+                    break;
+                case "itemEdit":
+                    editItem(msg.message);
+                    break;
             }
+        },
+        appendItem: function(markupId) {
+            var item = $('<span/>', {id: markupId});
+            $('#items .mCSB_container').append(item);
+            updateItems();
         }
     };
 })();
