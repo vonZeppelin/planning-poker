@@ -23,6 +23,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.lbogdanov.poker.core.User;
@@ -74,7 +75,8 @@ public class NavBar extends Panel {
             }
 
         })));
-        add(userMenu.add(visibilityManager), navigation.add(visibilityManager));
+        add(userMenu.add(visibilityManager), navigation.add(visibilityManager),
+            new BookmarkablePageLink<Void>("home", getApplication().getHomePage()));
     }
 
 }

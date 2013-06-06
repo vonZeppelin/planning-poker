@@ -34,6 +34,7 @@ import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.settings.IApplicationSettings;
 import org.lbogdanov.poker.core.User;
 import org.lbogdanov.poker.web.page.*;
 import org.lbogdanov.poker.web.page.SessionPage.Subscriber;
@@ -103,10 +104,14 @@ public class PokerWebApplication extends WebApplication {
             public void onLoginRequired() {}
 
         }.mountLoginPage(null, getHomePage()).install(this);
-        // TODO Atmosphere issue
-        // if (usesDeploymentConfig()) {
-        //    setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
-        // }
+        if (usesDeploymentConfig()) {
+            IApplicationSettings appSettings = getApplicationSettings();
+            appSettings.setInternalErrorPage(ErrorPage.class);
+            appSettings.setPageExpiredErrorPage(ErrorPage.class);
+            // appSettings.setAccessDeniedPage(ErrorPage.class);
+            // TODO Atmosphere issue
+            // setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
+        }
         mountResource("logo.png", new PackageResourceReference(getHomePage(), "images/logo.png"));
         mountPage("/session/${code}", SessionPage.class);
         mountPage("/profile/", ProfilePage.class);
