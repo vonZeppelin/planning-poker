@@ -206,7 +206,6 @@ public class IndexPage extends AbstractPage {
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
                 if (target != null) {
-                    target.appendJavaScript("Poker.initEditor();");
                     target.add(form);
                 }
             }

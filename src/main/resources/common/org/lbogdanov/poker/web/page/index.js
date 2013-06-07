@@ -1,28 +1,17 @@
-var Poker = (function() {
-    var initEditor = function() {
-        var estimatesInput = $("#estimates"),
-            estimatesEditor = $("#estimatesEditor"),
-            customEstimates = $("#customEstimates");
+$(function() {
+    var estimatesEditor = $("#estimatesEditor"),
+        customEstimates = $("#customEstimates", estimatesEditor);
 
-        estimatesEditor.on("show", function() {
-            customEstimates.val(estimatesInput.val());
-        });
-
-        $("a", estimatesEditor).click(function() {
-            customEstimates.val($(this).text());
-        });
-
-        $("#estimatesSubmit").click(function() {
-            estimatesInput.val(customEstimates.val());
-            estimatesEditor.modal("hide");
-        });
-    };
-
-    $(function() {
-        initEditor();
+    estimatesEditor.on("show", function() {
+        customEstimates.val($("#estimates").val());
     });
 
-    return {
-        initEditor: initEditor
-    };
-})();
+    $("a", estimatesEditor).click(function() {
+        customEstimates.val($(this).text());
+    });
+
+    $("#estimatesSubmit").click(function() {
+        $("#estimates").val(customEstimates.val());
+        estimatesEditor.modal("hide");
+    });
+});
