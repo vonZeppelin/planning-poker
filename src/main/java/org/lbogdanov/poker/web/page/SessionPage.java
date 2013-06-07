@@ -99,11 +99,13 @@ public class SessionPage extends AbstractPage {
         @Override
         public void resourceRegistered(String uuid, Page page) {
             if (page instanceof SessionPage) {
-                Session session = ((SessionPage) page).session;
-                Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(session.getCode(), true);
-                // TODO Atmosphere issue: searching AtmosphereResource instance by its uuid doesn't work
+                String channel = ((SessionPage) page).session.getCode();
+                // get AtmosphereResource quickly knowing Meteor is used under the hood
                 Meteor meteor = Meteor.lookup((HttpServletRequest) page.getRequest().getContainerRequest());
-                broadcaster.addAtmosphereResource(meteor.getAtmosphereResource());
+                if (meteor != null) {
+                    Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(channel, true);
+                    broadcaster.addAtmosphereResource(meteor.getAtmosphereResource());
+                }
             }
         }
 
