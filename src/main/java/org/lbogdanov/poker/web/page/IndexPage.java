@@ -41,7 +41,6 @@ import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
 import org.lbogdanov.poker.core.Duration;
-import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
@@ -199,8 +198,8 @@ public class IndexPage extends AbstractPage {
             @Override
             public void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 Game game = (Game) form.getModelObject();
-                Session session = sessionService.create(game.name, game.description, game.estimates);
-                setResponsePage(SessionPage.class, new PageParameters().add("code", session.getCode()));
+                String code = sessionService.create(game.name, game.description, game.estimates).getCode();
+                setResponsePage(SessionPage.class, new PageParameters().add("code", code));
             }
 
             @Override

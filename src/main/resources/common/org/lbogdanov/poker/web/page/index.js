@@ -1,17 +1,17 @@
 $(function() {
-    var estimatesEditor = $("#estimatesEditor"),
-        customEstimates = $("#customEstimates", estimatesEditor);
+    var editor = $("#editor"),
+        input = $("input", editor);
 
-    estimatesEditor.on("show", function() {
-        customEstimates.val($("#estimates").val());
+    editor.on("show", function() {
+        input.val($("#estimates").val());
     });
 
-    $("a", estimatesEditor).click(function() {
-        customEstimates.val($(this).text());
+    $("a", editor).click(function() {
+        input.val($(this).text());
     });
 
-    $("#estimatesSubmit").click(function() {
-        $("#estimates").val(customEstimates.val());
-        estimatesEditor.modal("hide");
+    $("#apply", editor).click(function() {
+        $("#estimates").val(input.val());
+        editor.modal("hide");
     });
 });
