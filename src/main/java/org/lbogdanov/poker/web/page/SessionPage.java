@@ -15,6 +15,7 @@
  */
 package org.lbogdanov.poker.web.page;
 
+import static org.atmosphere.cpr.FrameworkConfig.ATMOSPHERE_RESOURCE;
 import static org.lbogdanov.poker.core.Constants.LABEL_MAX_LENGTH;
 
 import java.text.DateFormat;
@@ -49,7 +50,6 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.Broadcaster;
 import org.atmosphere.cpr.BroadcasterFactory;
-import org.atmosphere.cpr.Meteor;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
@@ -100,11 +100,14 @@ public class SessionPage extends AbstractPage {
         public void resourceRegistered(String uuid, Page page) {
             if (page instanceof SessionPage) {
                 String channel = ((SessionPage) page).session.getCode();
-                // get AtmosphereResource quickly knowing Meteor is used under the hood
-                Meteor meteor = Meteor.lookup((HttpServletRequest) page.getRequest().getContainerRequest());
-                if (meteor != null) {
+                // quickly get an AtmosphereResource from a current HttpServletRequest
+                HttpServletRequest request = (HttpServletRequest) page.getRequest().getContainerRequest();
+                AtmosphereResource resource = (AtmosphereResource) request.getAttribute(ATMOSPHERE_RESOURCE);
+                if (resource != null) {
                     Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(channel, true);
-                    broadcaster.addAtmosphereResource(meteor.getAtmosphereResource());
+                    broadcaster.addAtmosphereResource(resource);
+                } else {
+                    LOG.warn("Couldn't get AtmosphereResource for a request");
                 }
             }
         }
@@ -197,7 +200,7 @@ public class SessionPage extends AbstractPage {
     @Subscribe(contextAwareFilter = OriginFilter.class)
     public void publishMessage(AjaxRequestTarget target, Message<?> msg) throws Exception {
         if (target == null) {
-            LOG.info("Couldn't sent async message, target was null");
+            LOG.warn("Couldn't sent async message, target was null");
         } else {
             target.appendJavaScript(String.format("Poker.dispatch(%s);", mapper.writeValueAsString(msg)));
         }
