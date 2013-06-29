@@ -24,16 +24,17 @@ import static org.lbogdanov.poker.core.Constants.SESSION_NAME_MAX_LENGTH;
 
 import javax.inject.Inject;
 
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.io.IClusterable;
@@ -44,6 +45,7 @@ import org.lbogdanov.poker.core.Duration;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
 import org.lbogdanov.poker.web.markup.BootstrapFeedbackPanel;
+import org.lbogdanov.poker.web.markup.ControlGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,11 +105,13 @@ public class IndexPage extends AbstractPage {
         };
 
         Form<?> internal = new StatelessForm<Credentials>("internal", new CompoundPropertyModel<Credentials>(new Credentials()));
+        MarkupContainer usernameGroup = new ControlGroup("usernameGroup");
+        MarkupContainer passwordGroup = new ControlGroup("passwordGroup");
+        MarkupContainer rememberGroup = new ControlGroup("rememberGroup");
         internal.add(new BootstrapFeedbackPanel("feedback"),
-                     new TransparentWebMarkupContainer("usernameGroup").add(append("class", new ValidationModel(internal, "username", "error"))),
-                     new TransparentWebMarkupContainer("passwordGroup").add(append("class", new ValidationModel(internal, "password", "error"))),
-                     new RequiredTextField<String>("username"), new PasswordTextField("password"),
-                     new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
+                     usernameGroup.add(new RequiredTextField<String>("username").setLabel(new ResourceModel("login.internal.username"))),
+                     passwordGroup.add(new PasswordTextField("password").setLabel(new ResourceModel("login.internal.password"))),
+                     rememberGroup.add(new CheckBox("rememberme"), new AjaxFallbackButton("submit", internal) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -136,7 +140,7 @@ public class IndexPage extends AbstractPage {
                 }
             }
 
-        });
+        }));
 
         IModel<Game> gameModel = new CompoundPropertyModel<Game>(new Game());
         IValidator<String> codeValidator = new IValidator<String>() {
@@ -153,10 +157,7 @@ public class IndexPage extends AbstractPage {
 
         };
         Form<?> join = new Form<Game>("join", gameModel);
-        join.add(new BootstrapFeedbackPanel("feedback"),
-                 new TransparentWebMarkupContainer("codeGroup").add(append("class", new ValidationModel(join, "code", "error"))),
-                 new RequiredTextField<String>("code").add(maximumLength(SESSION_CODE_MAX_LENGTH), codeValidator),
-                 new AjaxFallbackButton("submit", join) {
+        MarkupContainer codeGroup = new ControlGroup("codeGroup").add(new AjaxFallbackButton("submit", join) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -172,6 +173,10 @@ public class IndexPage extends AbstractPage {
             }
 
         });
+        join.add(new BootstrapFeedbackPanel("feedback"),
+                 codeGroup.add(new RequiredTextField<String>("code").setLabel(new ResourceModel("session.join.code"))
+                                                                    .add(maximumLength(SESSION_CODE_MAX_LENGTH), codeValidator)));
+
         IValidator<String> estimatesValidator = new IValidator<String>() {
 
             @Override
@@ -187,12 +192,16 @@ public class IndexPage extends AbstractPage {
 
         };
         Form<?> create = new Form<Game>("create", gameModel);
+        MarkupContainer nameGroup = new ControlGroup("nameGroup");
+        MarkupContainer estimatesGroup = new ControlGroup("estimatesGroup");
+        MarkupContainer descriptionGroup = new ControlGroup("descriptionGroup");
         create.add(new BootstrapFeedbackPanel("feedback"),
-                   new TransparentWebMarkupContainer("nameGroup").add(append("class", new ValidationModel(create, "name", "error"))),
-                   new RequiredTextField<String>("name").add(maximumLength(SESSION_NAME_MAX_LENGTH)),
-                   new TransparentWebMarkupContainer("estimatesGroup").add(append("class", new ValidationModel(create, "estimates", "error"))),
-                   new RequiredTextField<String>("estimates").add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator),
-                   new TextArea<String>("description").add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH)),
+                   nameGroup.add(new RequiredTextField<String>("name").setLabel(new ResourceModel("session.create.name"))
+                                                                      .add(maximumLength(SESSION_NAME_MAX_LENGTH))),
+                   estimatesGroup.add(new RequiredTextField<String>("estimates").setLabel(new ResourceModel("session.create.estimates"))
+                                                                                .add(maximumLength(SESSION_ESTIMATES_MAX_LENGTH), estimatesValidator)),
+                   descriptionGroup.add(new TextArea<String>("description").setLabel(new ResourceModel("session.create.description"))
+                                                                           .add(maximumLength(SESSION_DESCRIPTION_MAX_LENGTH))),
                    new AjaxFallbackButton("submit", create) {
 
             @Override

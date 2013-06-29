@@ -29,27 +29,19 @@
             <form wicket:id="internal" method="post">
               <fieldset>
                 <legend><wicket:message key="login.internal.hint" /></legend>
-                <div class="control-group" wicket:id="usernameGroup">
-                  <label class="control-label" wicket:for="username"><wicket:message key="login.internal.username" /></label>
-                  <div class="controls">
-                    <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
-                  </div>
+                <div wicket:id="usernameGroup">
+                  <input type="text" wicket:id="username" wicket:message="placeholder:login.internal.username" required>
                 </div>
-                <div class="control-group" wicket:id="passwordGroup">
-                  <label class="control-label" wicket:for="password"><wicket:message key="login.internal.password" /></label>
-                  <div class="controls">
-                    <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
-                  </div>
+                <div wicket:id="passwordGroup">
+                  <input type="password" wicket:id="password" wicket:message="placeholder:login.internal.password" required>
                 </div>
-                <div class="control-group">
-                  <div class="controls">
-                    <label class="checkbox">
-                      <input type="checkbox" wicket:id="rememberme"><wicket:message key="login.remember" />
-                    </label>
-                    <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="login.internal.submit" /></button>
-                    &nbsp;
-                    <button type="reset" class="btn"><wicket:message key="login.internal.reset" /></button>
-                  </div>
+                <div wicket:id="rememberGroup">
+                  <label class="checkbox">
+                    <input type="checkbox" wicket:id="rememberme"><wicket:message key="login.remember" />
+                  </label>
+                  <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="login.internal.submit" /></button>
+                  &nbsp;
+                  <button type="reset" class="btn"><wicket:message key="login.internal.reset" /></button>
                 </div>
               </fieldset>
               <span wicket:id="feedback"></span>
@@ -78,13 +70,10 @@
             <form wicket:id="join" method="get">
               <fieldset>
                 <legend><wicket:message key="session.join" /></legend>
-                <div class="control-group" wicket:id="codeGroup">
-                    <label class="control-label" wicket:for="code"><wicket:message key="session.join.code" /></label>
-                    <div class="controls">
-                      <div class="input-append">
-                        <input type="text" wicket:id="code" wicket:message="placeholder:session.join.code.hint" required>
-                        <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.join.hint" /></button>
-                    </div>
+                <div wicket:id="codeGroup">
+                  <div class="input-append">
+                    <input type="text" wicket:id="code" wicket:message="placeholder:session.join.code.hint" required>
+                    <button type="submit" wicket:id="submit" class="btn btn-primary"><wicket:message key="session.join.hint" /></button>
                   </div>
                 </div>
               </fieldset>
@@ -95,28 +84,19 @@
             <form wicket:id="create" method="post">
               <fieldset>
                 <legend><wicket:message key="session.create" /></legend>
-                <div class="control-group" wicket:id="nameGroup">
-                  <label class="control-label" wicket:for="name"><wicket:message key="session.create.name" /></label>
-                  <div class="controls">
-                    <input type="text" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
+                <div wicket:id="nameGroup">
+                  <input type="text" wicket:id="name" wicket:message="placeholder:session.create.name.hint" required>
+                </div>
+                <div wicket:id="estimatesGroup">
+                  <div class="input-append">
+                    <input type="text" class="span4" id="estimates" wicket:id="estimates" readonly required>
+                    <button class="btn" data-target="#editor" data-toggle="modal" wicket:message="title:session.create.estimates.hint">
+                      <i class="icon-edit"></i>
+                    </button>
                   </div>
                 </div>
-                <div class="control-group" wicket:id="estimatesGroup">
-                  <label class="control-label" wicket:for="estimates"><wicket:message key="session.create.estimates" /></label>
-                  <div class="controls">
-                    <div class="input-append">
-                      <input type="text" class="span4" id="estimates" wicket:id="estimates" readonly required>
-                      <button class="btn" data-target="#editor" data-toggle="modal" wicket:message="title:session.create.estimates.hint">
-                        <i class="icon-edit"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="control-group">
-                  <label class="control-label" wicket:for="description"><wicket:message key="session.create.description" /></label>
-                  <div class="controls">
-                    <textarea class="span5" wicket:id="description" rows="4"></textarea>
-                  </div>
+                <div wicket:id="descriptionGroup">
+                  <textarea class="span5" wicket:id="description" rows="4"></textarea>
                 </div>
                 <div class="control-group">
                   <div class="controls">
