@@ -18,6 +18,7 @@ package org.lbogdanov.poker.web.page;
 import java.util.Collections;
 
 import org.apache.wicket.bootstrap.Bootstrap;
+import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -77,7 +78,16 @@ abstract class AbstractPage extends WebPage {
      */
     @Override
     public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
         Bootstrap.renderHeadPlain(response);
+        ResourceReference ref = getCss();
+        if (ref != null) {
+            response.render(CssHeaderItem.forReference(ref));
+        }
+        ref = getJavaScript();
+        if (ref != null) {
+            response.render(JavaScriptHeaderItem.forReference(ref));
+        }
     }
 
     /**
@@ -87,6 +97,24 @@ abstract class AbstractPage extends WebPage {
      */
     public NavBar getNavBar() {
         return navBar;
+    }
+
+    /**
+     * Returns a CSS <code>ResourceReference</code> for this page, can be <b>null</b>.
+     * 
+     * @return the CSS resource reference
+     */
+    protected ResourceReference getCss() {
+        return null;
+    }
+
+    /**
+     * Returns a JavaScript <code>ResourceReference</code> for this page, can be <b>null</b>.
+     * 
+     * @return the JavaScript resource reference
+     */
+    protected ResourceReference getJavaScript() {
+        return null;
     }
 
     /**

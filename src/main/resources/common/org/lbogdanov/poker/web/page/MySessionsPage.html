@@ -5,15 +5,34 @@
       <span class="add-on"><wicket:message key="session.name" /></span>
       <input class="span2" wicket:id="sessionName" type="text">
     </div>
+    <span class="help-inline"><wicket:message key="session.name.help" /></span>
     <div class="pull-right">
       <label wicket:for="pageSize"><wicket:message key="session.itemsPerPage" /></label>
       <select wicket:id="pageSize" style="width: 100px;"></select>
     </div>
   </form>
   <table class="table table-bordered table-striped" wicket:id="sessions"></table>
+  <div id="confirmDlg" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h3><wicket:message key="confirm.title" /></h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        <wicket:message key="confirm.question" />
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal"><wicket:message key="confirm.cancel" /></button>
+      <button id="delete" class="btn btn-primary"><wicket:message key="confirm.ok" /></button>
+    </div>
+  </div>
+  <wicket:fragment wicket:id="nameLink">
+    <a wicket:id="goto" href="#" wicket:message="title:session.goto">
+      <span wicket:id="name"></span> <i class="icon-share-alt"></i>
+    </a>
+  </wicket:fragment>
   <wicket:fragment wicket:id="actions">
-    <a class="btn" wicket:id="goto" href="#" wicket:message="title:session.goto"><i class="icon-share-alt"></i></a>
-    &nbsp;
     <a class="btn" wicket:id="delete" href="#" wicket:message="title:session.delete"><i class="icon-trash"></i></a>
   </wicket:fragment>
 </wicket:extend>

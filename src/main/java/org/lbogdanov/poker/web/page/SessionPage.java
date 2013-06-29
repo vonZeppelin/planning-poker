@@ -37,7 +37,6 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.atmosphere.EventBus;
 import org.apache.wicket.atmosphere.ResourceRegistrationListener;
 import org.apache.wicket.atmosphere.Subscribe;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Form;
@@ -184,10 +183,8 @@ public class SessionPage extends AbstractPage {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.render(CssHeaderItem.forReference(CSS));
         response.render(JavaScriptHeaderItem.forReference(I18N));
         response.render(JavaScriptHeaderItem.forReference(CustomScrollbarPlugin.get()));
-        response.render(JavaScriptHeaderItem.forReference(JS));
     }
 
     /**
@@ -204,6 +201,22 @@ public class SessionPage extends AbstractPage {
         } else {
             target.appendJavaScript(String.format("Poker.dispatch(%s);", mapper.writeValueAsString(msg)));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ResourceReference getCss() {
+        return CSS;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ResourceReference getJavaScript() {
+        return JS;
     }
 
     private static void post(Object channel, Message<?> message) {

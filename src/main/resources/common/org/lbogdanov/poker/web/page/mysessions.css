@@ -20,15 +20,15 @@ th.wicket_orderUp {
 }
 
 th.name {
-    width: 15%;
+    width: 21%;
 }
 
 th.description {
-    width: 35%;
+    width: 30%;
 }
 
 th.created {
-    width: 12%;
+    width: 16%;
 }
 
 th.author {
@@ -36,5 +36,5 @@ th.author {
 }
 
 th.actions {
-    width: 18%;
+    width: 13%;
 }

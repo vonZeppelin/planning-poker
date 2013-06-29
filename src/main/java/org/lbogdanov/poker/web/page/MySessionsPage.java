@@ -16,6 +16,7 @@
 package org.lbogdanov.poker.web.page;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 
 import org.apache.shiro.authz.annotation.RequiresUser;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.attributes.ThrottlingSettings;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
@@ -40,8 +42,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToo
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
@@ -59,9 +59,9 @@ import org.lbogdanov.poker.core.PagingList;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
+import org.lbogdanov.poker.web.markup.BodylessLabel;
 import org.lbogdanov.poker.web.markup.BootstrapPagingNavigator;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 
 /**
@@ -78,7 +78,7 @@ public class MySessionsPage extends AbstractPage {
     private final class SessionsProvider extends SortableDataProvider<Session, String> {
 
         private transient PagingList<Session> data;
-        private transient String sessionName;
+        private String sessionName;
 
         @Override
         public Iterator<? extends Session> iterator(long first, long count) {
@@ -147,7 +147,8 @@ public class MySessionsPage extends AbstractPage {
     }
 
     private static final ResourceReference CSS = new CssResourceReference(MySessionsPage.class, "mysessions.css");
-    private static final List<Long> ITEMS_PER_PAGE = ImmutableList.of(10L, 50L, 100L);
+    private static final ResourceReference JS = new PageScriptResourceReference(MySessionsPage.class, "mysessions.js");
+    private static final List<Long> ITEMS_PER_PAGE = Arrays.asList(10L, 50L, 100L);
 
     @Inject
     private SessionService sessionService;
@@ -158,16 +159,28 @@ public class MySessionsPage extends AbstractPage {
     /**
      * Creates a new instance of <code>MySessionsPage</code> page.
      */
+    @SuppressWarnings("unchecked")
     public MySessionsPage() {
         final SessionsProvider dataProvider =  new SessionsProvider();
         dataProvider.setSort("created", SortOrder.DESCENDING); // default sort: created, desc
-        List<AbstractColumn<Session, String>> columns = ImmutableList.of(
-            new Column("session.name", "name", "name"),
+        List<AbstractColumn<Session, String>> columns = Arrays.asList(
+            new Column("session.name", "name", "name") {
+
+                @Override
+                public void populateItem(Item<ICellPopulator<Session>> item, String compId, IModel<Session> model) {
+                    Session session = model.getObject();
+                    PageParameters params = new PageParameters().add("code", session.getCode());
+                    Link<?> go = new BookmarkablePageLink<Void>("goto", SessionPage.class, params);
+                    go.add(new BodylessLabel("name", session.getName()));
+                    item.add(new Fragment(compId, "nameLink", MySessionsPage.this).add(go));
+                }
+
+            },
             new Column("session.description", null, "description"),
             new Column("session.created", "created", "created") {
 
                 @Override
-                @SuppressWarnings({"rawtypes", "unchecked"})
+                @SuppressWarnings("rawtypes")
                 public IModel<Object> getDataModel(IModel<Session> rowModel) {
                     Date created = (Date) super.getDataModel(rowModel).getObject();
                     String formatted = DateFormat.getDateTimeInstance(DateFormat.SHORT,
@@ -182,9 +195,7 @@ public class MySessionsPage extends AbstractPage {
 
                 @Override
                 public void populateItem(Item<ICellPopulator<Session>> item, String compId, IModel<Session> model) {
-                    PageParameters params = new PageParameters().add("code", model.getObject().getCode());
-                    Link<?> go = new BookmarkablePageLink<Void>("goto", SessionPage.class, params);
-                    Link<?> delete = new AjaxFallbackLink<Session>("delete", model) { // TODO Add confirmation
+                    Link<?> delete = new AjaxFallbackLink<Session>("delete", model) {
 
                         @Override
                         public void onClick(AjaxRequestTarget target) {
@@ -195,8 +206,16 @@ public class MySessionsPage extends AbstractPage {
                             }
                         }
 
+                        @Override
+                        protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                            super.updateAjaxAttributes(attributes);
+                            AjaxCallListener listener = new AjaxCallListener();
+                            listener.onPrecondition("return Poker.confirm(attrs.c);");
+                            attributes.getAjaxCallListeners().add(listener);
+                        }
+
                     };
-                    item.add(new Fragment(compId, "actions", MySessionsPage.this).add(go, delete));
+                    item.add(new Fragment(compId, "actions", MySessionsPage.this).add(delete));
                 }
 
                 @Override
@@ -284,9 +303,16 @@ public class MySessionsPage extends AbstractPage {
      * {@inheritDoc}
      */
     @Override
-    public void renderHead(IHeaderResponse response) {
-        super.renderHead(response);
-        response.render(CssHeaderItem.forReference(CSS));
+    protected ResourceReference getCss() {
+        return CSS;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ResourceReference getJavaScript() {
+        return JS;
     }
 
 }
