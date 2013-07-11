@@ -10,10 +10,12 @@ var Poker = (function() {
             chatLog.mCustomScrollbar("update");
             chatLog.mCustomScrollbar("scrollTo", "last");
         },
-        updateItems = function() {
-            var items = $("#items");
-            items.mCustomScrollbar("update");
-            items.mCustomScrollbar("scrollTo", "last");
+        showEstimate = function(slider, value) {
+            slider.siblings("span").text(value);
+            slider.siblings("#est").val(value);
+        },
+        showSliderValue = function(event, data) {
+            showEstimate($(this), estimates[data.value]);
         },
         removeItem = function(id) {
             $("#item" + id).remove();
@@ -23,7 +25,8 @@ var Poker = (function() {
             var element = $("#item" + item.id);
             element.find("span[id ^= title]").text(item.title);
             element.find("span[id ^= description]").text(item.description == null? "": item.description);
-        };
+        },
+        estimates = ${estimates};
 
     $(function() {
         // send chat messages on Ctrl / Meta + Enter, ignore single line break in a message input
@@ -46,6 +49,9 @@ var Poker = (function() {
                 enable : true
             }
         });
+        var slider = $(".estimate");
+        slider.bind("slider:changed", showSliderValue);
+        showEstimate(slider, estimates[slider.val()]);
     });
 
     return {
@@ -70,7 +76,6 @@ var Poker = (function() {
                     appendMsg($.i18n.printf(msgTpl, [msg.author, msg.message]));
                     break;
                 case "itemAdd":
-                    updateItems();
                     break;
                 case "itemRemove":
                     removeItem(msg.message.id);
@@ -80,10 +85,22 @@ var Poker = (function() {
                     break;
             }
         },
-        appendItem: function(markupId) {
-            var item = $('<span/>', {id: markupId});
+        appendItem: function(itemMsg) {
+            var item = $('<span/>', {id: itemMsg.markupId});
             $('#items .mCSB_container').append(item);
-            updateItems();
+        },
+        slider: function(itemMsg) {
+            var items = $("#items"),
+                slider = $("#item" + itemMsg.message.id).find(".estimate");
+            slider.simpleSlider({
+                snap: 'true',
+                range: [0, (estimates.length - 1)],
+                step: '1'
+            });
+            slider.bind("slider:changed", showSliderValue);
+            showEstimate(slider, estimates[0]);
+            items.mCustomScrollbar("update");
+            items.mCustomScrollbar("scrollTo", "last");
         }
     };
 })();

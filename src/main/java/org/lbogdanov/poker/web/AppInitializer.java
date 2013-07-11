@@ -37,6 +37,7 @@ import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.MeteorServlet;
 import org.lbogdanov.poker.core.*;
+import org.lbogdanov.poker.core.impl.ItemServiceImpl;
 import org.lbogdanov.poker.core.impl.SessionServiceImpl;
 import org.lbogdanov.poker.core.impl.UserServiceImpl;
 import org.lbogdanov.poker.util.Settings;
@@ -153,10 +154,13 @@ public class AppInitializer extends GuiceServletContextListener {
                 dbConfig.addClass(Session.class);
                 dbConfig.addClass(User.class);
                 dbConfig.addClass(Item.class);
+                dbConfig.addClass(Estimate.class);
+                dbConfig.addClass(EstimatePrimaryKey.class);
 
                 bind(EbeanServer.class).toInstance(EbeanServerFactory.create(dbConfig));
                 bind(SessionService.class).to(SessionServiceImpl.class);
                 bind(UserService.class).to(UserServiceImpl.class);
+                bind(ItemService.class).to(ItemServiceImpl.class);
                 bind(WebApplication.class).to(PokerWebApplication.class);
                 bind(MeteorServlet.class).in(Singleton.class);
                 bind(ObjectMapper.class).toProvider(new Provider<ObjectMapper>() {

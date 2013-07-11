@@ -40,7 +40,7 @@ import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
-import org.lbogdanov.poker.core.Duration;
+import org.lbogdanov.poker.core.Estimate;
 import org.lbogdanov.poker.core.Session;
 import org.lbogdanov.poker.core.SessionService;
 import org.lbogdanov.poker.core.UserService;
@@ -178,7 +178,7 @@ public class IndexPage extends AbstractPage {
             @Override
             public void validate(IValidatable<String> validatable) {
                 try {
-                    Duration.parse(validatable.getValue());
+                    Estimate.parse(validatable.getValue());
                 } catch (IllegalArgumentException e) {
                     ValidationError error = new ValidationError();
                     error.addKey("session.create.estimates.invalidEstimate").setVariable("estimate", e.getMessage());

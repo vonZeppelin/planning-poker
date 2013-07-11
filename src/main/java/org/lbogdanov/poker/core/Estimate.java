@@ -15,26 +15,38 @@
  */
 package org.lbogdanov.poker.core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
+import javax.persistence.*;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
- * Represents a time interval stored as a number of minutes, is used to represent an estimate in a Planning Poker game.
+ * Represents a session item estimate.
  * 
  * @author Alexandra Fomina
  */
-public class Duration implements Comparable<Duration> {
+@Entity
+@Table(name = "ESTIMATES")
+@IdClass(EstimatePrimaryKey.class)
+public class Estimate implements Serializable {
 
     static final int MINUTES_PER_HOUR = 60;
     static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 8;
     static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 5;
 
-    private int minutes;
+    @ManyToOne
+    @PrimaryKeyJoinColumn(name = "USER_ID", referencedColumnName = "ID")
+    private User user;
+    @ManyToOne
+    @PrimaryKeyJoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    private Item item;
+    @Column(name = "ESTIMATE", nullable = false)
+    private Integer value;
 
     /**
      * Parses the given <code>String</code> to a <code>List</code> of <code>Duration</code> objects.
@@ -46,8 +58,8 @@ public class Duration implements Comparable<Duration> {
      * @return the durations represented by the given <code>String</code>
      * @throws IllegalArgumentException if the given <code>String</code> doesn't matches syntax
      */
-    public static List<Duration> parse(String input) {
-        List<Duration> durations = new ArrayList<Duration>();
+    public static List<Estimate> parse(String input) {
+        List<Estimate> durations = new ArrayList<Estimate>();
         StringBuilder duration = new StringBuilder();
         for (char chr : input.toCharArray()) {
             if (Character.isWhitespace(chr) || chr == ',' || chr == ';') {
@@ -73,7 +85,7 @@ public class Duration implements Comparable<Duration> {
                    default:
                        throw new IllegalArgumentException(duration.toString() + chr);
                 }
-                durations.add(new Duration(Integer.parseInt(duration.toString()) * mul));
+                durations.add(new Estimate(Integer.parseInt(duration.toString()) * mul));
                 duration.setLength(0);
             }
         }
@@ -84,38 +96,98 @@ public class Duration implements Comparable<Duration> {
     }
 
     /**
-     * Creates a zero valued <code>Duration</code> instance.
+     * Creates a zero valued <code>Estimate</code> instance.
      */
-    public Duration() {
-        this(0);
+    public Estimate() {
+        value = 0;
     }
 
     /**
-     * Creates a <code>Duration</code> instance with a specified number of minutes.
+     * Creates an <code>Estimate</code> instance with a specified value.
      * 
-     * @param minutes the initial number of minutes, must be non-negative
+     * @param value the estimate value in minutes
      */
-    public Duration(int minutes) {
-        setMinutes(minutes);
+    public Estimate(int value) {
+        setValue(value);
     }
 
     /**
-     * Returns a number of minutes in this time interval.
+     * Returns an estimate author.
      * 
-     * @return the minutes the number of minutes
+     * @return the user
      */
-    public int getMinutes() {
-        return minutes;
+    public User getUser() {
+        return user;
     }
 
     /**
-     * Sets a number of minutes that this time interval has.
+     * Sets an estimate author.
      * 
-     * @param minutes the number of minutes, must be non-negative
+     * @param user the user to set
      */
-    public void setMinutes(int minutes) {
-        Preconditions.checkArgument(minutes >= 0, "Value must be non-negative");
-        this.minutes = minutes;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    /**
+     * Returns an item evaluated by an estimate.
+     * 
+     * @return the item
+     */
+    public Item getItem() {
+        return item;
+    }
+
+    /**
+     * Sets an estimation item.
+     * 
+     * @param item the item to set
+     */
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    /**
+     * Returns an estimate value.
+     * 
+     * @return the estimate value
+     */
+    public Integer getValue() {
+        return value;
+    }
+
+    /**
+     * Sets an estimate value.
+     * 
+     * @param value the estimate value to set, must be non-negative
+     */
+    public void setValue(Integer value) {
+        Preconditions.checkArgument(value >= 0, "Value must be non-negative");
+        this.value = value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getItem(), getUser());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Estimate) {
+            Estimate other = (Estimate) obj;
+            return Objects.equal(this.getItem(), other.getItem())
+                   && Objects.equal(this.getUser(), other.getUser());
+        }
+        return false;
     }
 
     /**
@@ -123,7 +195,7 @@ public class Duration implements Comparable<Duration> {
      */
     @Override
     public String toString() {
-        int n = minutes;
+        int n = value;
         if (n == 0) {
             return "0";
         }
@@ -144,36 +216,6 @@ public class Duration implements Comparable<Duration> {
             duration.add(n + "m");
         }
         return Joiner.on(' ').join(duration);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compareTo(Duration that) {
-        return Ints.compare(this.minutes, that.minutes);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other instanceof Duration) {
-            return this.getMinutes() == ((Duration) other).getMinutes();
-        }
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return getMinutes();
     }
 
 }

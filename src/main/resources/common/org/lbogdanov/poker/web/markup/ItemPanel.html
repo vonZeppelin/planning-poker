@@ -1,10 +1,21 @@
 <wicket:panel>
   <div class="well well-small">
     <a href="#" class="close pull-right" data-dismiss="alert" wicket:id="remove">&times;</a>
-      <h6>
+      <h5>
         <span wicket:id="title"></span>
-      </h6>
+      </h5>
     <br>
     <span wicket:id="description"></span>
+    <br>
+    <form wicket:id="estimation" class="estimation">
+      <button class="btn btn-info btn-small pull-right" type="submit" wicket:id="submit"><i class="icon-ok icon-white"></i></button>
+      <div class="row">
+        <div class="span5">
+          <input type="text" class="span4 estimate" wicket:id="estIdx" data-slider="true" data-slider-step="1" data-slider-snap="true">
+          <input type="hidden" wicket:id="estimate" id="est">
+          <span class="span1"></span>
+        </div>
+      </div>
+    </form>
   </div>
 </wicket:panel>

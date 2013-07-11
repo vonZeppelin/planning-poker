@@ -21,6 +21,7 @@
         <shiro.version>1.2.2</shiro.version>
         <slf4j.version>1.7.5</slf4j.version>
         <wicket.version>6.6.0</wicket.version>
+        <ebean.version>3.2.1</ebean.version>
     </properties>
     <repositories>
         <repository>
@@ -133,9 +134,9 @@
             <version>1.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.avaje</groupId>
-            <artifactId>ebean</artifactId>
-            <version>2.8.1</version>
+            <groupId>org.avaje.ebeanorm</groupId>
+            <artifactId>avaje-ebeanorm</artifactId>
+            <version>${ebean.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ocpsoft.prettytime</groupId>
@@ -241,9 +242,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.avaje</groupId>
-                <artifactId>ebean-maven-enhancement-plugin</artifactId>
-                <version>2.8.1</version>
+                <groupId>org.avaje.ebeanorm</groupId>
+                <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
+                <version>${ebean.version}</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>

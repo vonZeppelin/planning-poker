@@ -53,7 +53,7 @@ public class Session extends AbstractEntity {
     private User author;
     @Column(name = "ESTIMATES", length = SESSION_ESTIMATES_MAX_LENGTH, nullable = false)
     private String estimates;
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Item> items = Collections.emptyList();
 
     /**

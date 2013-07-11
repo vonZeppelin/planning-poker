@@ -18,10 +18,7 @@ package org.lbogdanov.poker.web.page;
 import static org.lbogdanov.poker.core.Constants.LABEL_MAX_LENGTH;
 
 import java.text.DateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -50,7 +47,6 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PropertyListView;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -58,6 +54,8 @@ import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
+import org.apache.wicket.util.collections.MiniMap;
+import org.apache.wicket.util.template.PackageTextTemplate;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.Broadcaster;
 import org.atmosphere.cpr.BroadcasterFactory;
@@ -77,6 +75,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -133,7 +132,7 @@ public class SessionPage extends AbstractPage {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionPage.class);
     private static final ResourceReference CSS = new CssResourceReference(SessionPage.class, "session.css");
-    private static final ResourceReference JS = new PageScriptResourceReference(SessionPage.class, "session.js");
+    private static final PackageTextTemplate JS_TEXT_TEMPLATE = new PackageTextTemplate(SessionPage.class, "session.js", "text/javascript");
 
     @Inject
     private SessionService sessionService;
@@ -142,7 +141,6 @@ public class SessionPage extends AbstractPage {
     @Inject
     private ObjectMapper mapper;
     private Session session;
-    private FeedbackPanel feedback;
 
     /**
      * Creates a new instance of <code>Session</code> page.
@@ -248,13 +246,12 @@ public class SessionPage extends AbstractPage {
                      AttributeModifier.append("title", session.getDescription()));
         }
 
-        feedback = new BootstrapFeedbackPanel("feedback");
         add(chatForm.setOutputMarkupId(true), name.setMaxLength(LABEL_MAX_LENGTH),
             new BodylessLabel("session.code", session.getCode()).setMaxLength(LABEL_MAX_LENGTH),
             new BodylessLabel("session.author", session.getAuthor()).setMaxLength(LABEL_MAX_LENGTH),
             new BodylessLabel("session.created", formatDate(session.getCreated())).setMaxLength(LABEL_MAX_LENGTH),
             new WebMarkupContainer("itemsContainer").add(items).setOutputMarkupId(true), moderatorPane.setOutputMarkupId(true),
-            feedback.setOutputMarkupId(true));
+            new BootstrapFeedbackPanel("feedback").setOutputMarkupId(true));
     }
 
     /**
@@ -266,18 +263,27 @@ public class SessionPage extends AbstractPage {
         response.render(CssHeaderItem.forReference(CSS));
         response.render(JavaScriptHeaderItem.forReference(I18N));
         response.render(JavaScriptHeaderItem.forReference(CustomScrollbarPlugin.get()));
-        response.render(JavaScriptHeaderItem.forReference(JS));
+        Map<String, Object> variables = new MiniMap<String, Object>(5);
+        try {
+            variables.put("estimates", mapper.writeValueAsString(session.getEstimates().split("\\s")));
+        } catch (JsonProcessingException e) {
+            LOG.error(e.getMessage());
+        }
+        response.render(JavaScriptHeaderItem.forScript(JS_TEXT_TEMPLATE.asString(variables), ""));
     }
 
     @Subscribe
     @SuppressWarnings("unchecked")
-    public void appendItem(AjaxRequestTarget target, ItemMessage msg) {
+    public void appendItem(AjaxRequestTarget target, ItemMessage msg) throws JsonProcessingException {
         Item item = msg.message;
         ListView<Item> listView = (ListView<Item>) get("itemsContainer").get("items");
         ListItem<Item> listItem = populateListItem(new ListItem<Item>(listView.size(), Model.of(item)), msg.origin);
         listView.add(listItem.setOutputMarkupId(true));
-        target.prependJavaScript(String.format("Poker.appendItem('%s');", listItem.getMarkupId()));
-        target.add(listItem, feedback);
+        msg.setMarkupId(listItem.getMarkupId());
+        String jsonMsg = mapper.writeValueAsString(msg);
+        target.prependJavaScript(String.format("Poker.appendItem(%s);", jsonMsg));
+        target.add(listItem, get("feedback"));
+        target.appendJavaScript(String.format("Poker.slider(%s);", jsonMsg));
         success(SessionPage.this.getString("item.new", Model.of(item)));
     }
 
@@ -300,13 +306,13 @@ public class SessionPage extends AbstractPage {
     @Subscribe
     public void removeItem(AjaxRequestTarget target, ItemRemoveEvent event) {
         warn(SessionPage.this.getString("item.removed", Model.of(event.message)));
-        target.add(feedback);
+        target.add(get("feedback"));
     }
 
     @Subscribe(filter = OriginFilter.class)
     public void editItem(AjaxRequestTarget target, ItemChangeEvent event) throws Exception {
         info(SessionPage.this.getString("item.modified", Model.of(event.message)));
-        target.add(feedback);
+        target.add(get("feedback"));
     }
 
     @Override
@@ -344,7 +350,7 @@ public class SessionPage extends AbstractPage {
     }
 
     private ListItem<Item> populateListItem(ListItem<Item> listItem, Object origin) {
-        listItem.add(new ItemPanel<Item>("item", listItem.getModel(), session, origin))
+        listItem.add(new ItemPanel<Item>("item", listItem.getModelObject(), session, origin))
                 .add(new AttributeModifier("id", "item" + listItem.getModelObject().getId()));
         return listItem;
     }

@@ -21,3 +21,7 @@ hr {
     overflow: auto;
     height: 450px;
 }
+
+.estimation .row {
+    margin-left: 0px;
+}

@@ -3,6 +3,9 @@ package org.lbogdanov.poker.core;
 import static org.lbogdanov.poker.core.Constants.ITEM_DESCRIPTION_MAX_LENGTH;
 import static org.lbogdanov.poker.core.Constants.ITEM_TITLE_MAX_LENGTH;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.persistence.*;
 
 import com.google.common.base.Objects;
@@ -23,6 +26,8 @@ public class Item extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "SESSION_ID", nullable = false)
     private Session session;
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Estimate> estimates = Collections.emptyList();
 
     /**
      * Returns an item title.

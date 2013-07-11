@@ -1,24 +1,31 @@
 package org.lbogdanov.poker.web.markup;
 
+import static org.lbogdanov.poker.core.Estimate.parse;
+
 import javax.inject.Inject;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.HiddenField;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.lbogdanov.poker.core.Item;
-import org.lbogdanov.poker.core.Session;
-import org.lbogdanov.poker.core.SessionService;
-import org.lbogdanov.poker.core.User;
+import org.lbogdanov.poker.core.*;
+import org.lbogdanov.poker.web.plugin.SimpleSliderPlugin;
 import org.lbogdanov.poker.web.util.ItemChangeEvent;
 import org.lbogdanov.poker.web.util.ItemRemoveEvent;
 import org.lbogdanov.poker.web.util.Message;
@@ -31,16 +38,18 @@ import com.google.common.base.Strings;
  * 
  * @author Alexandra Fomina
  */
-
 public class ItemPanel<T> extends Panel {
 
     @Inject
-    private SessionService sessionService;
+    private ItemService itemService;
+    @Inject
+    private UserService userService;
     private Link<?> removeLink;
     private boolean isModerator;
 
-    public ItemPanel(String id, final IModel<Item> model, final Session session, Object origin) {
-        super(id, model);
+    @SuppressWarnings("unchecked")
+    public ItemPanel(String id, final Item item, final Session session, Object origin) {
+        super(id, Model.of(item));
         if (origin instanceof User) {
             isModerator = Objects.equal(origin, session.getAuthor());
         } else {
@@ -49,11 +58,10 @@ public class ItemPanel<T> extends Panel {
         Component title;
         Component description;
         if (isModerator) {
-            title = new AjaxEditableLabel<String>("title", new PropertyModel<String>(model.getObject(), "title")) {
+            title = new AjaxEditableLabel<String>("title", new PropertyModel<String>(item, "title")) {
 
                 @Override
                 protected void onSubmit(AjaxRequestTarget target) {
-                    Item item = model.getObject();
                     String title = getEditor().getModelObject();
                     if (!Objects.equal(item.getTitle(), title)) {
                         item.setTitle(title);
@@ -67,7 +75,6 @@ public class ItemPanel<T> extends Panel {
                     return super.newEditor(parent, componentId, model).setRequired(true);
                 }
 
-
                 @Override
                 protected void onError(AjaxRequestTarget target) {
                     if (target != null) {
@@ -76,11 +83,10 @@ public class ItemPanel<T> extends Panel {
                 }
 
             };
-            description = new AjaxEditableLabel<String>("description", new PropertyModel<String>(model.getObject(), "description")) {
+            description = new AjaxEditableLabel<String>("description", new PropertyModel<String>(item, "description")) {
 
                 @Override
                 protected void onSubmit(AjaxRequestTarget target) {
-                    Item item = model.getObject();
                     String description = getEditor().getModelObject();
                     if (!Objects.equal(item.getDescription(), description)) {
                         item.setDescription(Strings.nullToEmpty(description));
@@ -91,22 +97,48 @@ public class ItemPanel<T> extends Panel {
 
             };
         } else {
-            title = new Label("title", new PropertyModel<String>(model.getObject(), "title"));
-            description = new Label("description", new PropertyModel<String>(model.getObject(), "description"))
+            title = new Label("title", PropertyModel.of(getDefaultModel(), "title"));
+            description = new Label("description", PropertyModel.of(getDefaultModel(), "description"))
                                     .add(new AttributeAppender("id", "description"));
         }
-        removeLink = new AjaxFallbackLink<Item>("remove", model) {
+        removeLink = new AjaxFallbackLink<Item>("remove", (IModel<Item>) getDefaultModel()) {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 Item item = this.getModelObject();
-                sessionService.removeItem(item);
+                itemService.delete(item);
                 send(getPage(), Broadcast.BREADTH, new ItemRemoveEvent(null, item));
             }
 
         };
-        add(title.setOutputMarkupId(true), description, removeLink);
 
+        Form<?> estimationForm = new Form<Void>("estimation");
+        estimationForm.add(new TextField<String>("estIdx", Model.of("")).add(AttributeAppender.append("data-slider-range", "0," + (session.getEstimates().split("\\s").length - 1))),
+                           new HiddenField<String>("estimate", Model.of("")), new AjaxFallbackButton("submit", estimationForm) {
+
+                            @Override
+                            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                                Estimate estimate = itemService.find(userService.getCurrentUser(), item);
+                                if (estimate == null) {
+                                    estimate = new Estimate();
+                                }
+                                String est = ((TextField<String>) form.get("estimate")).getModelObject();
+                                estimate.setValue(parse(est).get(0).getValue());
+                                if (estimate.getItem() == null) {
+                                    estimate.setItem(item);
+                                }
+                                itemService.approve(estimate);
+                            }
+
+                        });
+        add(title.setOutputMarkupId(true), description, removeLink, estimationForm.setOutputMarkupId(true));
+
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(JavaScriptHeaderItem.forReference(SimpleSliderPlugin.get()));
     }
 
     @Override
@@ -116,7 +148,7 @@ public class ItemPanel<T> extends Panel {
     }
 
     private void itemChanged(Item item) {
-        sessionService.saveItem(item);
+        itemService.save(item);
         Message<Item> msg = new ItemChangeEvent(getSession().getId(), item);
         send(getPage(), Broadcast.BREADTH, msg);
     }

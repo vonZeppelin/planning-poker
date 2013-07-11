@@ -83,18 +83,4 @@ public interface SessionService {
      */
     public void save(Session session);
 
-    /**
-     * Removes a session item.
-     * 
-     * @param item the item to remove
-     */
-    void removeItem(Item item);
-
-    /**
-     * Persists an item object in a storage.
-     * 
-     * @param item the item to save
-     */
-    public void saveItem(Item item);
-
 }

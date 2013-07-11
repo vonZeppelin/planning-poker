@@ -25,10 +25,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.lbogdanov.poker.core.*;
+import org.lbogdanov.poker.core.PagingList;
 
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Query;
+import com.avaje.ebean.*;
 import com.avaje.ebean.annotation.Transactional;
 import com.google.common.base.Strings;
 
@@ -83,9 +82,20 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional(readOnly = true)
     public PagingList<Session> find(User user, String name, String orderBy, boolean ascending, int pageSize) {
-        // TODO Union with session where the user participated
-        ExpressionList<Session> expr = ebean.find(Session.class)
-                                            .where().eq("author", user);
+        //TODO Pagination doesn't work with raw sql
+        RawSql rawSql = RawSqlBuilder.parse("select s.id, s.name, s.code, s.created, s.description, s.estimates, s.author_id" +
+                                            " from sessions s " +
+                                            "left outer join items i on i.session_id=s.id " +
+                                            "left outer join estimates e on e.item_id=i.id " +
+                                            "where e.user_id = ? or s.author_id = ?")
+                                            .columnMapping("s.name", "name")
+                                            .columnMapping("s.description", "description")
+                                            .columnMapping("s.created", "created")
+                                            .columnMapping("s.author_id", "author.id")
+                                            .create();
+        ExpressionList<Session> expr = ebean.find(Session.class).setRawSql(rawSql)
+                                            .setParameter(1, user.getId()).setParameter(2, user.getId())
+                                            .where();
         if (!Strings.isNullOrEmpty(name)) {
             expr = expr.ilike("name", name);
         }
@@ -125,24 +135,6 @@ public class SessionServiceImpl implements SessionService {
     @Transactional
     public void save(Session session) {
         ebean.save(session);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public void removeItem(Item item) {
-        ebean.delete(item);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public void saveItem(Item item) {
-        ebean.save(item);
     }
 
     /**
